@@ -1,0 +1,31 @@
+,Park,City,Wind,Chance of Rain,Park Factor,LHB (HR),LHB (2B),LHB (3B),RHB (HR),RHB (2B),RHB (3B),Pitchers,Hitters
+0,Target Field ( MIN ),Minneapolis,4 mph,0%,0.899,100,100,112,104,107,96,6,6
+1,Oriole Park at Camden Yards ( BAL ),Baltimore,9 mph,100%,1.143,107,95,87,106,98,90,3,8
+2,Yankee Stadium ( NYY ),New York,10 mph,27%,0.899,118,96,82,108,93,85,2,8
+3,Citizens Bank Park ( PHI ),Philadelphia,7 mph,34%,1.013,106,97,97,114,97,92,4,6
+4,PNC Park ( PIT ),Pittsburgh,5 mph,11%,1.226,101,103,85,89,100,105,8,4
+5,Comerica Park ( DET ),Detroit,7 mph,1%,0.869,99,94,110,100,100,129,5,6
+6,Tropicana Field ( TB ),St. Petersburg,9 mph,5%,0.626,97,94,99,94,93,94,7,4
+7,Marlins Park ( MIA ),Miami,12 mph,12%,0.582,91,90,109,88,99,97,8,4
+8,Citi Field ( NYM ),New York,10 mph,90%,0.518,97,96,84,97,93,89,7,4
+9,Globe Life Field ( TEX ),Arlington,7 mph,0%,,105,98,123,104,105,117,2,7
+10,Wrigley Field ( CHC ),Chicago,8 mph,1%,0.911,93,101,100,106,97,111,5,5
+11,Angel Stadium of Anaheim ( LAA ),Anaheim,2 mph,1%,1.073,98,95,82,100,95,86,7,4
+12,Chase Field ( ARI ),Phoenix,2 mph,0%,1.13,98,101,129,99,98,130,5,6
+13,T-Mobile Park ( SEA ),Seattle,7 mph,1%,1.006,100,94,84,99,93,91,8,4
+14,PETCO Park ( SD ),San Diego,7 mph,2%,0.748,94,101,89,97,97,101,8,3
+15,Fenway Park ( BOS ),Boston,,,1.194,90,127,115,101,107,94,6,6
+16,Guaranteed Rate Field ( CHW ),Chicago,,,0.709,106,93,106,103,97,88,3,7
+17,Progressive Field ( CLE ),Cleveland,,,1.039,105,109,86,98,102,84,5,6
+18,Kauffman Stadium ( KC ),Kansas City,,,1.424,91,104,117,93,107,110,7,5
+19,RingCentral Coliseum ( OAK ),Oakland,,,0.98,92,100,111,94,103,105,7,4
+20,Rogers Centre ( TOR ),Toronto,,,1.031,101,107,105,102,103,99,4,7
+21,Truist Park ( ATL ),Atlanta,,,1.192,98,100,91,95,101,93,5,7
+22,Great American Ball Park ( CIN ),Cincinnati,,,1.694,110,95,100,108,104,92,2,8
+23,Coors Field ( COL ),Denver,,,1.144,109,111,135,113,114,135,1,10
+24,Minute Maid Park ( HOU ),Houston,,,0.944,101,95,110,100,96,100,4,7
+25,Dodger Stadium ( LAD ),Los Angeles,,,0.917,105,99,76,97,100,73,6,4
+26,Miller Park ( MIL ),Milwaukee,,,1.278,112,98,93,103,100,94,2,7
+27,Nationals Park ( WSH ),Washington,,,0.917,98,105,85,103,103,83,6,6
+28,Busch Stadium ( STL ),St. Louis,,,0.86,99,100,96,93,99,96,7,4
+29,Oracle Park ( SF ),San Francisco,,,0.856,83,102,129,88,96,109,10,2

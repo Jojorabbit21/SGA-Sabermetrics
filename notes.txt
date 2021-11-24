@@ -1,0 +1,4 @@
+#WIP
+
+1. matches(BP) / lineup{MLB,BP->False}
+2. lineup -> player stats to DataFrame
