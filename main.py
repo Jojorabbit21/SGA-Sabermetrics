@@ -22,7 +22,7 @@ def main():
     ################## --- INITIATE --- ###################
     
     # Get Match and Lineups
-    matches = get_matches('2021-08-03')
+    matches, players = get_matches('2021-08-03')
     
     # Get Player statcast_batting and pitchervsbatter
     # pitcherid = find_player("Gerrit Cole")

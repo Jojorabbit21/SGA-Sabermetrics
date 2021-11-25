@@ -2,3 +2,8 @@
 
 1. matches(BP) / lineup{MLB,BP->False}
 2. lineup -> player stats to DataFrame
+-> done!
+
+3. player 이름 뽑았으니까 선수타입별로 스탯 뽑기 (투수면 투수스탯, 타자면 타자,필딩 스탯)
+3-1. 팀 스탯(타격,수비 지표 뽑기)
+3-2. 구장 이름 구해서 파크팩터 뽑기
