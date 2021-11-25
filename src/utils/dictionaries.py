@@ -95,6 +95,29 @@ DICT_TEAMNAMES = {
     "WAS": ["WAS","WAS","WAS","WSN","WAS","WSH","WSH","Nationals","WSH","WAS","WAS","MLB-WASHINGTON-NATIONALS","WAS","WAS","nationals","Nationals Park", "124"]
 }
 
+DICT_SANITIZE = {
+    "CHN": "CHC",
+    "CWS": "CHW",
+    "CHA": "CHW",
+    "KAN": "KC",
+    "KCR": "KC",
+    "KCA": "KC",
+    "ANA": "LAA",
+    "LAN": "LAD",
+    "NYN": "NYM",
+    "NYA": "NYY",
+    "SDP": "SD",
+    "SDN": "SD",
+    "SFG": "SF",
+    "SFN": "SF",
+    "SLN": "STL",
+    "TAM": "TB",
+    "TBR": "TB",
+    "TBA": "TB",
+    "WSH": "WAS",
+    "WSN": "WAS"
+}
+
 DICT_BP_LINEUP = {
     "D-backs": "ARI",
     "Diamondbacks": "ARI",
@@ -129,3 +152,4 @@ DICT_BP_LINEUP = {
     "Blue Jays": "TOR",
     "Nationals": "WAS"
 }
+
