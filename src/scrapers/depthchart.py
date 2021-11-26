@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from src.utils.constants import *
 from src.utils.dictionaries import *
 
-def get_depth_chart():
+def get_team_roasters():
   batting_df = pd.DataFrame()
   pitching_df = pd.DataFrame()
   
