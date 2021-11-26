@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from src.utils.constants import *
 from src.utils.dictionaries import *
 
+# 팀 투수, 타자 리스트를 뽑고 간단한 스탯을 불러온다.
 def get_team_roasters():
   batting_df = pd.DataFrame()
   pitching_df = pd.DataFrame()
@@ -22,3 +23,7 @@ def get_team_roasters():
 #   pitching_df.to_csv('./rawfish/team_pitching.csv',sep=',',encoding='utf-8')
 return batting_df, pitching_df
 
+
+# 팀 포지션 별 뎁스차트를 불러온다.
+def get_team_depthcharts():
+  return True
