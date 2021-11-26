@@ -16,7 +16,7 @@ def main():
     # pd.set_option('display.max_rows',999)
     
     ### -> 매일 돌릴 필요 없는 모듈
-    # get_depth_chart()
+    # get_team_roasters()
     
     ################## --- INITIATE --- ###################
     # Get Park Factors
