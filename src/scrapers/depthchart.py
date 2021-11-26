@@ -18,6 +18,7 @@ def get_depth_chart():
     batting_df = pd.concat([batting_df, team_df[0]])
     pitching_df = pd.concat([pitching_df, team_df[1]])
   
-  batting_df.to_csv('./rawfish/team_batting.csv',sep=',',encoding='utf-8')
-  pitching_df.to_csv('./rawfish/team_pitching.csv',sep=',',encoding='utf-8')
+#   batting_df.to_csv('./rawfish/team_batting.csv',sep=',',encoding='utf-8')
+#   pitching_df.to_csv('./rawfish/team_pitching.csv',sep=',',encoding='utf-8')
+return batting_df, pitching_df
 
