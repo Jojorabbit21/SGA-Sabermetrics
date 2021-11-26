@@ -17,9 +17,11 @@ def main():
     
     ### -> 매일 돌릴 필요 없는 모듈
     # get_depth_chart()
-    # get_park_factors()
     
     ################## --- INITIATE --- ###################
+    # Get Park Factors
+    # park_factors = get_park_factors()
+    
     
     # Get Match and Lineups
     matches, players = get_matches('2021-08-03')
