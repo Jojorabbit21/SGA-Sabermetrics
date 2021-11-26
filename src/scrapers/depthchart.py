@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from time import sleep
 
 from src.utils.constants import *
 from src.utils.dictionaries import *
@@ -21,9 +22,26 @@ def get_team_roasters():
   
 #   batting_df.to_csv('./rawfish/team_batting.csv',sep=',',encoding='utf-8')
 #   pitching_df.to_csv('./rawfish/team_pitching.csv',sep=',',encoding='utf-8')
-return batting_df, pitching_df
+  return batting_df, pitching_df
 
 
 # 팀 포지션 별 뎁스차트를 불러온다.
 def get_team_depthcharts():
-  return True
+  headers={'User-Agent':USER_AGENT}
+  r = requests.get(URL_LINEUPS['DC'], headers=headers)
+  r.encoding='utf-8'
+  if r.status_code == 200:
+    html = r.text
+    soup = BeautifulSoup(html, 'lxml')
+
+    columns = ['POS', '1', '2', '3']
+    index = ['C', '1B', '2B', 'SS', '3B', 'LF', 'CF', 'RF', 'DH'] # check DF existency
+    
+    team_name = []
+    data = soup.select('tr.t-header > th > div > a > span')
+    for i in data:
+      t = i.text.replace(' Depth Chart','')
+      team_name.append(t)
+    
+    # body > app-root > div.outlet-container > app-depth-charts > div > div > div.col-12.before-text-margin > div > div:nth-child(1) > app-single-dp-item > div > table > tbody > tr:nth-child(3) > td:nth-child(2) > app-player-link > a > span > span.long-player-name
+                                                                                                                  # nth-child 팀 선택 1~30                                      tr:nth-child(3-10) #DH는 11

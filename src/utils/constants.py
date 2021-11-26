@@ -4,15 +4,18 @@ USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 
 
 URL_LINEUPS = {
     "ODD": "https://www.lineups.com/mlb-odds",
-    "PARK_FACTORS": "https://www.lineups.com/mlb/park-factors"
+    "PARK_FACTORS": "https://www.lineups.com/mlb/park-factors",
+    "DC": "https://www.lineups.com/mlb/depth-charts"
 }
 
 URL_FP = {
-    "LINEUP": "https://www.fantasypros.com/mlb/lineups/"
+    "LINEUP": "https://www.fantasypros.com/mlb/lineups/",
+    "DC": "https://www.fantasypros.com/mlb/depth-charts.php"
 }
 
 URL_FGR = {
-    "TEAM": "https://www.fangraphs.com/teams/"
+    "TEAM": "https://www.fangraphs.com/teams/",
+    "DC": "https://www.fangraphs.com/depth-charts/"
 }
 
 URL_MLB = { 
@@ -31,4 +34,8 @@ URL_RG = {
     "vL": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=righty&team_id=",
     "aH": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=home&team_id=",
     "aA": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=away&team_id="
+}
+
+URL_NBC = {
+    "DC": "https://www.nbcsportsedge.com/baseball/mlb/depth-charts"
 }

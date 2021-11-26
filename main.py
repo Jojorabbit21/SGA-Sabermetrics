@@ -21,10 +21,12 @@ def main():
     ################## --- INITIATE --- ###################
     # Get Park Factors
     # park_factors = get_park_factors()
+    d = get_team_depthcharts()
+    
     
     
     # Get Match and Lineups
-    matches, players = get_matches('2021-08-03')
+    # matches, players = get_matches('2021-08-03')
     
     # Get Player statcast_batting and pitchervsbatter
     # pitcherid = find_player("Gerrit Cole")
