@@ -160,7 +160,7 @@ def get_matches(date):
     
     game_df = pd.DataFrame()
     game_df['A'] = match
-    game_df['B'] = gameid
+    game_df['B'] = gameid #Rotogrinder ID
     game_df['C'] = team_names_visit
     game_df['D'] = team_names_home
     game_df['E'] = gametime
@@ -169,6 +169,8 @@ def get_matches(date):
     game_df['H'] = temp
     game_df['I'] = humidity
     
+    pitchers = []
+    pitchers_team = []
         
     # Getting All Players
     players = soup.find_all("a",attrs={'class': 'player-popup'})
@@ -225,4 +227,3 @@ def get_matches(date):
     game_df.columns = gameinfo_df_col
 
   return game_df, players_df
-      

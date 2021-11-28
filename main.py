@@ -21,24 +21,26 @@ def main():
     ################## --- INITIATE --- ###################
     # Get Park Factors
     # park_factors = get_park_factors()
-    d = get_team_depthcharts()
+    # Get Team Depthcharts
+    # d = get_team_depthcharts()
     
-    
+    # get_pitcher_splits()
     
     # Get Match and Lineups
     # matches, players = get_matches('2021-08-03')
     
     # Get Player statcast_batting and pitchervsbatter
     # pitcherid = find_player("Gerrit Cole")
-    # batterid = find_player("Ji-Man Choi")
-    # data = get_pitcher(pitcherid, '2017-04-01', '2021-11-01', batter_against=batterid)
-    
+    # # batterid = find_player("Ji-Man Choi")
+    # data = get_pitcher(pitcherid, '2017-04-01', '2021-11-01')
+
     # Get team stats
     # team = get_team_batting('ATL') 
     # team = get_team_batting_table(start_season=2021,end_season=2021)
-    # Get Team Fielding
+
     # get_team_fielding('STL',2018, 2021)
     # f = get_team_fielding_table(2018,2021)
+    
     # p = get_team_pitching('STL', 2018, 2021)
     # pp = get_team_pitching_table(2018, 2021)
     
