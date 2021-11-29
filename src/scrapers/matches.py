@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from src.utils.constants import *
 from src.utils.dictionaries import *
+from src.utils.playermaps import *
 
 gameinfo_df_col = [
   # Game info
@@ -181,8 +182,10 @@ def get_matches(date):
       pls = []
       pis = []
       for j in range(0, 20):
-        pls.append(players[(i*20)+j].text)
-        pis.append(re.sub(r'[^0-9]','',players[(i*20)+j]['data-url']))
+        t = players[(i*20)+j].text
+        pls.append(t)
+        f = find_player(source='BBREF', full_name=t)
+        pis.append(f)
       all_players.append(pls)
       playerids.append(pis)
   

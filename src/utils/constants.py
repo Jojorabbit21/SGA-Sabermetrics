@@ -25,8 +25,15 @@ URL_FP = {
 
 URL_FGR = {
     "TEAM": "https://www.fangraphs.com/teams/",
+    "TEAM_FIELDING": "https://www.fangraphs.com/leaders.aspx?pos=all&stats=fld&lg=all&qual=0&type=1&season=2021&month=0&season1=2018&ind=0&team=0,ts&rost=0&age=0&filter=&players=0&startdate=&enddate=",
+    "TEAM_PITCHING": [
+        # 0 = Dashboard 1 = Batted Ball 2 = Pitch Value
+        "https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=0&type=8&season=2021&month=0&season1=2018&ind=0&team=0,ts&rost=0&age=0&filter=&players=0&startdate=2018-01-01&enddate=2021-12-31",
+        "https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=0&type=2&season=2021&month=0&season1=2018&ind=0&team=0,ts&rost=0&age=0&filter=&players=0&startdate=2018-01-01&enddate=2021-12-31",
+        "https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=0&type=7&season=2021&month=0&season1=2018&ind=0&team=0,ts&rost=0&age=0&filter=&players=0&startdate=2018-01-01&enddate=2021-12-31"
+    ],
     "DC": "https://www.fangraphs.com/depth-charts/",
-    "SPLIT": "https://www.fangraphs.com/leaders/splits-leaderboards?splitArr={}&splitArrPitch=&position={}&autoPt=true&splitTeams=false&statType=player&statgroup=1&startDate={}&endDate={}&players=&filter=&groupBy=season&sort=-1,1" 
+    "SPLIT": "https://www.fangraphs.com/leaders/splits-leaderboards?splitArr={}&splitArrPitch=&position={}&autoPt=true&splitTeams=false&statType=player&statgroup=1&startDate={}&endDate={}&players=&filter=&groupBy=season&sort=-1,1"
 }
 
 URL_MLB = { 

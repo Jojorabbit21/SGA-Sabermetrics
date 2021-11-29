@@ -10,19 +10,19 @@ from pybaseball import team_fielding
 from pybaseball.team_pitching import *
 from pybaseball import team_game_logs
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-options = Options()
-user_agent = "Mozilla/5.0 (Linux; Android 9; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.83 Mobile Safari/537.36"
-options.add_argument('user-agent=' + user_agent)
-options.add_argument('headless') #headless모드 브라우저가 뜨지 않고 실행됩니다.
-options.add_argument('disable-gpu')
-# options.add_argument('--window-size= x, y') #실행되는 브라우저 크기를 지정할 수 있습니다.
-options.add_argument('--start-maximized') #브라우저가 최대화된 상태로 실행됩니다.
-# options.add_argument('--start-fullscreen') #브라우저가 풀스크린 모드(F11)로 실행됩니다.
-# options.add_argument('--blink-settings=imagesEnabled=false') #브라우저에서 이미지 로딩을 하지 않습니다.
-# options.add_argument('--mute-audio') #브라우저에 음소거 옵션을 적용합니다.
-# options.add_argument('incognito') #시크릿 모드의 브라우저가 실행됩니다.
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
+# options = Options()
+# user_agent = "Mozilla/5.0 (Linux; Android 9; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.83 Mobile Safari/537.36"
+# options.add_argument('user-agent=' + user_agent)
+# # options.add_argument('headless') #headless모드 브라우저가 뜨지 않고 실행됩니다.
+# options.add_argument('disable-gpu')
+# # options.add_argument('--window-size= x, y') #실행되는 브라우저 크기를 지정할 수 있습니다.
+# options.add_argument('--start-maximized') #브라우저가 최대화된 상태로 실행됩니다.
+# # options.add_argument('--start-fullscreen') #브라우저가 풀스크린 모드(F11)로 실행됩니다.
+# # options.add_argument('--blink-settings=imagesEnabled=false') #브라우저에서 이미지 로딩을 하지 않습니다.
+# # options.add_argument('--mute-audio') #브라우저에 음소거 옵션을 적용합니다.
+# # options.add_argument('incognito') #시크릿 모드의 브라우저가 실행됩니다.
 
 from src.utils.dictionaries import DICT_SOURCE, DICT_TEAMNAMES
 
@@ -45,9 +45,16 @@ def get_team_fielding(team, start_season=2015, end_season=2021):
 
 # 각 팀별 수비지표 => DSR, UZR 등 추출
 def get_team_fielding_table(start_season=2012, end_season=2021):
-    data = team_fielding(start_season=start_season, end_season=end_season)
-    data.sort_values(by=['Team','Season'],axis=0, ascending=[True, True], inplace=True)
-    data.reset_index(inplace=True, drop=True)
+    data = pd.read_html(URL_FGR['TEAM_FIELDING'])
+    data = data[-2:-1][0]
+    data = data['1  Page size:  select  30 items in 1 pages']
+    for i in range(len(data)):
+        teamname = data.loc[[i],['Team']].to_numpy()
+        teamname = str(teamname[0][0])
+        if teamname != '1  Page size:  select  30 items in 1 pages':
+            teamname = DICT_BP_LINEUP[teamname]
+        data.loc[[i],['Team']] = teamname
+    data = data.drop([data.index[30]],axis=0)
     return data
 
 # 각 팀 선수별 투수지표
@@ -56,10 +63,19 @@ def get_team_pitching(team, start_season=2010, end_season=2021):
     return data
 
 # 각 팀별 투수지표 -> 318컬럼 ; 에반데
-def get_team_pitching_table(start_season=2012, end_season=2021):
-    data = team_pitching(start_season=start_season, end_season=end_season, league='ALL', ind=1)
-    data.sort_values(by=['Team','Season'],axis=0, ascending=[True, True], inplace=True)
-    data.reset_index(inplace=True, drop=True)
+def get_team_pitching_table(start_season=2018, end_season=2021):
+    data = pd.DataFrame(index=range(0,30))
+    for i in range(3):
+        series = pd.read_html(URL_FGR['TEAM_PITCHING'][i])
+        series = series[-2:-1][0] 
+        series = series['1  Page size:  select  30 items in 1 pages']
+        series = series.drop([series.index[30]],axis=0)
+        series.sort_values(by=['Team'],axis=0,ascending=[True],inplace=True)
+        if i == 0:
+            series = series.drop('#', axis=1)
+        if i == 1 or i == 2:
+            series = series.drop(['#','Team'],axis=1)
+        data = pd.concat([data, series], axis=1)        
     return data
 
 # 상대전적 검색
@@ -172,12 +188,14 @@ def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[
     splitArr = ",".join(arr)
     URL = URL_FGR['SPLIT'].format(splitArr, type, start_date, end_date)
     print(URL)
-    driver = webdriver.Chrome(executable_path='./src/scrapers/chromedriver.exe', options=options)
-    driver.get(URL)
-    driver.implicitly_wait(3)
-    html = driver.page_source
-    driver.close()
-    df = pd.read_html(html)
-    print(df[-1:])
+    # fangraphs말고 bbref로 진행
+    # driver = webdriver.Chrome(executable_path='./src/scrapers/chromedriver.exe', options=options)
+    # driver.get(URL)
+    # sleep(5)
+    # html = driver.page_source
+    # driver.close()
+    # df = pd.read_html(html)
+    # print(len(df))
+    # print(df)
     
     # return df

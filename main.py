@@ -21,20 +21,19 @@ def main():
     # r = get_team_roasters()
     
     ################## --- INITIATE --- ###################
-    # ############ Get Park Factors (Done)
-    # park_factors = get_park_factors()
+    ############ Get Park Factors (Done)
+    # park_factors = get_park_factors() #-> 완료
     # upload_dataframes(park_factors, 'PA')
     # ############ Get Team Depthcharts (Done)
-    # d = get_team_depthcharts()
+    # d = get_team_depthcharts() #-> 완료
     # upload_dataframes(d, 'DP')
     # ############ Get General Team Stats
-    # team = get_team_batting_table(start_season=2015,end_season=2021)
+    # team = get_team_batting_table(start_season=2015,end_season=2021) #-> 완료
     # upload_dataframes(team, 'TB')
-    # f = get_team_fielding_table(2015,2021) -> 스크레이퍼 직접 만들어야할듯
+    # f = get_team_fielding_table() #-> 완료
     # upload_dataframes(f, 'TF')
-    # # pp = get_team_pitching_table(2015, 2021) -> 데이터가 배팅과 동일하여 스킵
+    # pp = get_team_pitching_table(2015, 2021) # -> 완료
     # # upload_dataframes(pp, 'TP') 
-    
     
     ################################################################################# WIP
 
@@ -53,14 +52,15 @@ def main():
     #     h2h_b = get_head_to_head(visit,home,2021,log_type="batting")
     #     upload_dataframes(h2h_p, 'TH_P')
     #     upload_dataframes(h2h_b, 'TH_B')
+    #     -> dataframe 하나로 머지해서 업로드하는걸로 하자
+    
     
     # print(get_teambatting_split(DICT_TEAMNAMES['ARI'][16], 'L'))
-    get_fgr_split('ARI','P','CIN')
+    # get_fgr_split('COL','B','STL')
         
     # Get Player statcast_batting and pitchervsbatter
-    # pitcherid = find_player("Gerrit Cole")
-    # # batterid = find_player("Ji-Man Choi")
-    # data = get_pitcher(pitcherid, '2017-04-01', '2021-11-01')
+    pitcherid = find_player(source='BBREF',full_name="Albert Abreu")
+
 
 
 

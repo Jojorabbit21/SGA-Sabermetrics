@@ -1,3 +1,8 @@
+#REF
+
+UZR https://ibaseballgen.tistory.com/181
+
+
 #WIP
 
 1. matches(BP) / lineup{MLB,BP->False}
