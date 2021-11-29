@@ -6,10 +6,13 @@ National League
     West = SF, LAD, SD, COL, ARI
     East = ATL, PHI, NYM, MIA, WSH
     Central = MIL, STL, CIN, CHC, PIT
+    asc = ARI,ATL,CHC,CIN,COL,LAD,MIA,MIL,NYM,PHI,PIT,SD,SF,STL,WAS
+    
 American League
     East = TB, BOS, NYY, TOR, BAL
     Central = CWS, CLE, DET, KC, MIN
     West = HOU, SEA, OAK, LAA, TEX
+    asc = BAL,BOS,CHW,CLE,DET,HOU,KC,LAA,MIN,NYY,OAK,SEA,TB,TEX,TOR
 '''
 
 LIST_TEAMS = [
@@ -153,3 +156,53 @@ DICT_BP_LINEUP = {
     "Nationals": "WAS"
 }
 
+DB_SHEETS = {
+    "M": "Match_List",
+    "TB": 'Team_Batting',
+    "TF": 'Team_Fielding',
+    'TP': 'Team_Pitching',
+    'TH_P': 'Team_H2H_Pitching',
+    'TH_B': 'Team_H2H_Batting',
+    'PP': 'Player_Pitching',
+    'PB': 'Player_Batting',
+    'PF': 'Player_Fielding',
+    'UM': 'Umpires',
+    'DP': 'Depthchart',
+    'PA': 'Park_Factors'
+}
+
+DICT_FGR_SPLIT = {
+    # 0=B/T, 1=B/vT, 2=P/T, 3=P/vT
+    # NL asc = ARI,ATL,CHC,CIN,COL,LAD,MIA,MIL,NYM,PHI,PIT,SD,SF,STL,WAS
+    "ARI": [211,147,179,115],
+    "ATL": [212,148,180,116],
+    "CHC": [213,149,181,117],
+    "CIN": [214,150,182,118],
+    "COL": [215,151,183,119],
+    "LAD": [216,152,184,120],
+    "MIA": [217,153,185,121],
+    "MIL": [218,154,186,122],
+    "NYM": [219,155,187,123],
+    "PHI": [220,156,188,124],
+    "PIT": [221,157,189,125],
+    "SD": [222,158,190,126],
+    "SF": [223,159,191,127],
+    "STL": [224,160,192,128],
+    "WAS": [225,161,193,129],
+    # AL asc = BAL,BOS,CHW,CLE,DET,HOU,KC,LAA,MIN,NYY,OAK,SEA,TB,TEX,TOR
+    "BAL": [195,131,163,99],
+    "BOS": [196,132,164,100],
+    "CHW": [197,133,165,101],
+    "CLE": [198,134,167,102],
+    "DET": [199,135,168,103],
+    "HOU": [200,136,169,104],
+    "KC": [201,137,170,105],
+    "LAA": [202,138,171,106],
+    "MIN": [203,139,172,107],
+    "NYY": [204,140,173,108],
+    "OAK": [205,141,174,109],
+    "SEA": [206,142,175,110],
+    "TB": [207,143,176,111],
+    "TEX": [208,144,177,112],
+    "TOR": [209,145,178,113]
+}

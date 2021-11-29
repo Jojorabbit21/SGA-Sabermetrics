@@ -1,4 +1,14 @@
+from datetime import datetime, timedelta, timezone
+
+# General Information
 VERSION = "1.0.1"
+CURRENT_YEAR = datetime.now().year
+CURRENT_SEASON = "2022"
+
+# Google Spreadsheets as Database
+DB_NAME = "SGA Database"
+DB_START_ROW = 1
+DB_START_COL = 1
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
 
@@ -15,7 +25,8 @@ URL_FP = {
 
 URL_FGR = {
     "TEAM": "https://www.fangraphs.com/teams/",
-    "DC": "https://www.fangraphs.com/depth-charts/"
+    "DC": "https://www.fangraphs.com/depth-charts/",
+    "SPLIT": "https://www.fangraphs.com/leaders/splits-leaderboards?splitArr={}&splitArrPitch=&position={}&autoPt=true&splitTeams=false&statType=player&statgroup=1&startDate={}&endDate={}&players=&filter=&groupBy=season&sort=-1,1" 
 }
 
 URL_MLB = { 
@@ -31,7 +42,7 @@ URL_RG = {
     "LINEUP": "https://rotogrinders.com/lineups/mlb?date=",
     "BvP": ["https://rotogrinders.com/game-stats/mlb-hitter?split=pitcher&pitcher_id=","&team_id="],
     "vR": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=righty&team_id=",
-    "vL": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=righty&team_id=",
+    "vL": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=lefty&team_id=",
     "aH": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=home&team_id=",
     "aA": "https://rotogrinders.com/game-stats/mlb-hitter?range=season&split=away&team_id="
 }
