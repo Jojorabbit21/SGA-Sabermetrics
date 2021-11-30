@@ -1,49 +1,48 @@
 import pandas as pd
 import datetime
+import chromedriver_autoinstaller
 from time import sleep, time
-
-from src.utils.constants import *
-from src.utils.dictionaries import *
-
 from pybaseball.team_batting import *
 from pybaseball import team_fielding
 from pybaseball.team_pitching import *
 from pybaseball import team_game_logs
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-# options = Options()
-# user_agent = "Mozilla/5.0 (Linux; Android 9; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.83 Mobile Safari/537.36"
-# options.add_argument('user-agent=' + user_agent)
-# # options.add_argument('headless') #headless모드 브라우저가 뜨지 않고 실행됩니다.
-# options.add_argument('disable-gpu')
-# # options.add_argument('--window-size= x, y') #실행되는 브라우저 크기를 지정할 수 있습니다.
-# options.add_argument('--start-maximized') #브라우저가 최대화된 상태로 실행됩니다.
-# # options.add_argument('--start-fullscreen') #브라우저가 풀스크린 모드(F11)로 실행됩니다.
-# # options.add_argument('--blink-settings=imagesEnabled=false') #브라우저에서 이미지 로딩을 하지 않습니다.
-# # options.add_argument('--mute-audio') #브라우저에 음소거 옵션을 적용합니다.
-# # options.add_argument('incognito') #시크릿 모드의 브라우저가 실행됩니다.
+from src.utils.constants import *
+from src.utils.dictionaries import *
+from src.utils.dictionaries import *
 
-from src.utils.dictionaries import DICT_SOURCE, DICT_TEAMNAMES
+def get_team_roasters():
+  batting_df = pd.DataFrame()
+  pitching_df = pd.DataFrame()
+  
+  for i in LIST_TEAMS:
+    url = URL_FGR["TEAM"]+DICT_TEAMNAMES[i][14]
+    team_df = pd.read_html(url,encoding='utf-8',header=0)
+    team_df = team_df[10:-1]
+    team_df[0].insert(0, 'Team', i)
+    team_df[1].insert(0, 'Team', i)
+    batting_df = pd.concat([batting_df, team_df[0]])
+    pitching_df = pd.concat([pitching_df, team_df[1]])
 
-# 각 팀 선수별 타격 지표
-def get_team_batting(team, start_season=2010, end_season=2021):
+  return batting_df, pitching_df
+
+def get_batting_leaderboard(team, start_season=2010, end_season=2021):
     data = team_batting_bref(team, start_season, end_season)
     return data
 
-# 각 팀별 타격지표
-def get_team_batting_table(start_season=2012, end_season=2021):
+def get_team_batting_table(start_season=2015, end_season=2021):
     data = team_batting(start_season=start_season, end_season=end_season, league='ALL', ind=1)
-    data.sort_values(by=['Team','Season'],axis=0, ascending=[True, True], inplace=True)
+    data.sort_values(by='Team',axis=0, ascending=True, inplace=True)
+    data = data.drop(['teamIDfg', 'Season', 'Age'], axis=1)
     data.reset_index(inplace=True, drop=True)
     return data
 
-# 각 팀 선수별 수비 지표
-def get_team_fielding(team, start_season=2015, end_season=2021):
+def get_fielding_leaderboard(team, start_season=2015, end_season=2021):
     data = team_fielding.team_fielding_bref(team, start_season=start_season, end_season=end_season)
     return data
 
-# 각 팀별 수비지표 => DSR, UZR 등 추출
 def get_team_fielding_table(start_season=2012, end_season=2021):
     data = pd.read_html(URL_FGR['TEAM_FIELDING'])
     data = data[-2:-1][0]
@@ -55,14 +54,15 @@ def get_team_fielding_table(start_season=2012, end_season=2021):
             teamname = DICT_BP_LINEUP[teamname]
         data.loc[[i],['Team']] = teamname
     data = data.drop([data.index[30]],axis=0)
+    data = data.drop(['#'], axis=1)
+    data.sort_values(by='Team',axis=0, ascending=True, inplace=True)
+    data.reset_index(inplace=True, drop=True)
     return data
 
-# 각 팀 선수별 투수지표
-def get_team_pitching(team, start_season=2010, end_season=2021):
+def get_pitching_leaderboard(team, start_season=2010, end_season=2021):
     data = team_pitching_bref(team, start_season=start_season, end_season=end_season)
     return data
 
-# 각 팀별 투수지표 -> 318컬럼 ; 에반데
 def get_team_pitching_table(start_season=2018, end_season=2021):
     data = pd.DataFrame(index=range(0,30))
     for i in range(3):
@@ -75,10 +75,11 @@ def get_team_pitching_table(start_season=2018, end_season=2021):
             series = series.drop('#', axis=1)
         if i == 1 or i == 2:
             series = series.drop(['#','Team'],axis=1)
-        data = pd.concat([data, series], axis=1)        
+        data = pd.concat([data, series], axis=1)
+    data.sort_values(by='Team',axis=0, ascending=True, inplace=True)
+    data.reset_index(inplace=True, drop=True)
     return data
 
-# 상대전적 검색
 def get_head_to_head(team, against, year:int=2021, log_type="batting"):
     team = DICT_TEAMNAMES[team][DICT_SOURCE['BBREFTEAM']]
     against = DICT_TEAMNAMES[against][DICT_SOURCE['BBREFTEAM']]
@@ -113,6 +114,14 @@ def get_head_to_head(team, against, year:int=2021, log_type="batting"):
 
 def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[None,'L','R'], time=[None,'D','N'], home=[None,'H','A'], start_date='2021-03-01', end_date='2021-11-01'):
     
+    path = chromedriver_autoinstaller.install()
+    options = Options()
+    options.add_argument('user-agent='+USER_AGENT)
+    options.add_argument('headless')
+    options.add_argument('start-maximized')
+    options.add_argument('disable-gpu')
+    driver = webdriver.Chrome(path, options=options)
+
     # FGR splitArr
     # Batting split
     #     1 = vLHP
@@ -137,33 +146,9 @@ def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[
     
     arr = []
     if type == 'P':
-        arr.append( str(DICT_FGR_SPLIT[team][0]) )
+        arr.append( str(DICT_FGR_SPLIT[team][2]) )
         if opp:
-            arr.append( str(DICT_FGR_SPLIT[team][1]))
-        if hand:
-            if hand == 'L':
-                arr.append('3')
-            elif hand == 'R':
-                arr.append('4')
-        if opphand:
-            if opphand == 'L':
-                arr.append('1')
-            elif opphand == 'R':
-                arr.append('2')
-        if time:
-            if time == 'D':
-                arr.append('90')
-            elif time =='N':
-                arr.append('91')
-        if home:
-            if home == 'H':
-                arr.append('7')
-            elif home == 'A':
-                arr.append('8')    
-    else:
-        arr.append(str(DICT_FGR_SPLIT[team][2]))
-        if opp:
-            arr.append(str(DICT_FGR_SPLIT[team][3]))
+            arr.append( str(DICT_FGR_SPLIT[opp][3]))
         if hand:
             if hand == 'L':
                 arr.append('96')
@@ -183,19 +168,39 @@ def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[
             if home == 'H':
                 arr.append('9')
             elif home == 'A':
-                arr.append('10')         
+                arr.append('10')    
+    else: #Batting Split
+        arr.append(str(DICT_FGR_SPLIT[team][0]))
+        if opp:
+            arr.append(str(DICT_FGR_SPLIT[opp][1]))
+        if hand:
+            if hand == 'L':
+                arr.append('3')
+            elif hand == 'R':
+                arr.append('4')
+        if opphand:
+            if opphand == 'L':
+                arr.append('1')
+            elif opphand == 'R':
+                arr.append('2')
+        if time:
+            if time == 'D':
+                arr.append('90')
+            elif time =='N':
+                arr.append('91')
+        if home:
+            if home == 'H':
+                arr.append('7')
+            elif home == 'A':
+                arr.append('8')         
     
     splitArr = ",".join(arr)
     URL = URL_FGR['SPLIT'].format(splitArr, type, start_date, end_date)
     print(URL)
-    # fangraphs말고 bbref로 진행
-    # driver = webdriver.Chrome(executable_path='./src/scrapers/chromedriver.exe', options=options)
-    # driver.get(URL)
-    # sleep(5)
-    # html = driver.page_source
-    # driver.close()
-    # df = pd.read_html(html)
-    # print(len(df))
-    # print(df)
-    
-    # return df
+    driver.get(URL)
+    html = driver.page_source
+    driver.close()
+    df = pd.read_html(html, encoding='utf-8')
+    df = df[-1:][0]
+
+    return df

@@ -3,6 +3,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
+from src.refiners.time import *
 from src.utils.constants import *
 from src.utils.dictionaries import *
 from src.utils.playermaps import *
@@ -131,7 +132,7 @@ def get_matches(date):
     # Sanitizing Game time
     gametime = []
     for i in time:
-      gametime.append(i.text)
+      gametime.append(refine_gametime(date + " " + str(i.text)))
 
     # weather = soup.find_all('div', attrs={'class':'div.blk.weather'})
     weather = soup.select('div.blk.weather')

@@ -158,6 +158,8 @@ DICT_BP_LINEUP = {
 
 DB_SHEETS = {
     "M": "Match_List",
+    'P': "Pitchers",
+    "B": "Batters",
     "TB": 'Team_Batting',
     "TF": 'Team_Fielding',
     'TP': 'Team_Pitching',

@@ -1,23 +1,34 @@
-
+import requests
 import pandas as pd
+from time import sleep
+from bs4 import BeautifulSoup
 from pybaseball import get_splits
 from pybaseball import statcast_batter, statcast_pitcher
 from src.utils.playermaps import *
+from src.utils.constants import *
+from src.utils.dictionaries import *
 
-def get_pitcher_splits():
-    df, player_info_dict = get_splits('troutmi01', player_info=True)
-    # Season totals, platoon splits, home/away, vs. Power/Finesse Pitchers vs. Ground Ball/Fly Ball Pitchers, Opponent, Game Conditions, Ballparks
-    # print(df)
-    df2 = get_splits('lestejo01', pitching_splits=True, year=2020)
-    # Season totals, platoon splits, home/away, pitching role, run support, Clutch stats, pitch count, days of rest, hit location, opponent, game conditions, ballparks, by umpire(심판 데이터를 나중에 따로 뽑아서 여기서 추출)
-    print(df2)
-
-
-def get_batter(playerid, start_date, end_date, pitcher_against=0):
-    data = statcast_batter(start_dt=start_date, end_dt=end_date, player_id=playerid)
+# def get_player_split(brefid, player_info=True, year=2021, type=['P','B']):
+def get_player_split():
+#     df, player_info_dict = get_splits('troutmi01', player_info=True, year=2021)
+#     # Season totals, platoon splits, home/away, vs. Power/Finesse Pitchers vs. Ground Ball/Fly Ball Pitchers, Hit Location, Hit Trajectory, Opponent, Game Conditions, Ballparks
+#     # Count/Balls-Strikes, Number of Outs in Inning, Bases Occupied, Times Facing Opponent in Game,  
     
-    # statcast_batter 에는 상대 pitcher playerid가 나온다. 이를 통해서 상대 선발투수와의 히스토리를 알 수 있다.
-    # 나머지 필요 없는 columns 다 덜어내면 무겁지 않을 것으로 보임.
+#     df2, player_info_dict2 = get_splits('lestejo01', pitching_splits=True, year=2021)
+#     # Season totals, platoon splits, home/away, pitching role, run support, Clutch stats, pitch count, days of rest, hit location, opponent, game conditions, ballparks, by umpire(심판 데이터를 나중에 따로 뽑아서 여기서 추출)
+#     return df, player_info_dict, df2, player_info_dict2
+
+    URL = 'https://swishanalytics.com/optimus/mlb/batting-splits'
+    headers={'User-Agent':USER_AGENT}
+    r = requests.get(URL, headers=headers)
+    sleep(5)
+    html = r.text  
+    df = pd.read_html(html)
+    print(df)
+
+# Play-by-play data of batter
+def get_batter(playerid, start_date=None, end_date=None, pitcher_against=None):
+    data = statcast_batter(start_dt=start_date, end_dt=end_date, player_id=playerid)
     
     # Columns: 
     # [pitch_type, game_date, release_speed, release_pos_x, release_pos_z, player_name, batter, pitcher, events, description, spin_dir, 
@@ -40,14 +51,16 @@ def get_batter(playerid, start_date, end_date, pitcher_against=0):
     # at_bat_number, pitch_number, pitch_name, home_score, away_score, bat_score, fld_score, post_away_score, post_home_score, post_bat_score, 
     # post_fld_score, if_fielding_alignment, of_fielding_alignment, spin_axis, delta_home_win_exp, delta_run_exp]]
     
-    if pitcher_against != 0:
-        debris = data[ data['pitcher'] != pitcher_against ].index
-        if len(debris) > 0:
-            data.drop(debris, inplace=True)
-            data = data.reset_index(drop=True)
-        
+    # if pitcher_against != None:
+    #     debris = data[ data['pitcher'] != pitcher_against ].index
+    #     if len(debris) > 0:
+    #         data.drop(debris, inplace=True)
+    #         data = data.reset_index(drop=True)
+    
+    data.to_csv('batter.csv')
     return data
 
+# Play-by-play data of pitcher
 def get_pitcher(playerid, start_date, end_date, batter_against=0):
     # 2015 at least
     data = statcast_pitcher(start_dt=start_date, end_dt=end_date, player_id=playerid)
@@ -73,7 +86,3 @@ def get_pitcher(playerid, start_date, end_date, batter_against=0):
             data = data.reset_index(drop=True)
         
     return data
-
-# def get_pvb(pitcher_id, team_id):
-    # https://rotogrinders.com/game-stats/mlb-hitter?split=pitcher&pitcher_id=13434&team_id=119
-    # PvB 이곳에서 데이터 뽑으면 될 것으로 보임. opp_pitcher_id & team_id 필요 :: div > div > div.splits > ul > li:nth-child(1) > a['href']

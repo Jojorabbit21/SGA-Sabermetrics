@@ -1,0 +1,48 @@
+Introduction:
+
+  SGA Sabermetrics is package of scrapers that scrape baseball statistics for Sabermetrics analysis method.
+  It will fetch statistics from Baseball-Reference, Fangraphs, Rotogrinders, MLB.com, Lineups, and pybaseball.
+  I used Google Spreadsheets as a Database and Front-end interface. After User set matchup, GAS will automatically
+  gather informations from database sheets to interface sheets. It will combine datas and visualize it through graphs and charts.
+  Through this process, User can easily analize Sabermetrical datas with visuals, Ultimately It will help Users to get better change to beat bookies.
+
+Process:
+
+  Static Modules -
+    1. Read Playermaps
+    2. Read Teammaps
+    3. Get Park Factors
+    4. Get Depthcharts
+    5. Upload Park Factors, Depthcharts to spreadsheets
+    6. Get Team Batting, Fielding, Pitching Databases
+    7. Upload Team Stats to spreadsheets
+  Rawfish Modules -
+    1. Get Matchups and Lineups
+    2. Get Players Splits
+       2-1. Get Pitcher Splits (PvB, vHH, Time, H/A, breaks, by umpires, by ballparks)
+       2-2. Get Batter Splits (vHP, Time, H/A, by ballparks)
+    3. Upload Matchups, Lineups, Player splits to spreadsheets
+
+Project Structure:
+    
+main.py
+├─── lahman
+├─── rawfish
+├─── static
+│     ├─── playermap.csv
+│     └─── teammap.csv
+└─── src
+  ├─── refiners
+  ├─── scrapers
+  │     ├─── matches.py
+  │     ├─── parkfactors.py
+  │     ├─── players.py
+  │     ├─── teams.py
+  │     └─── depthchart.py
+  ├─── uploaders
+  │     └─── uploader.py
+  └─── utils
+        ├─── constants.py
+        ├─── dictionaries.py
+        ├─── playermaps.py
+        └─── teammaps.py

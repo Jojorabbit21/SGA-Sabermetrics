@@ -1,5 +1,9 @@
 import pandas as pd
+from datetime import datetime, timedelta, timezone
+from time import sleep, strptime
+from tqdm import tqdm, trange
 
+from src.refiners.time import refine_gametime
 from src.scrapers.depthchart import *
 from src.scrapers.parkfactors import *
 from src.scrapers.matches import *
@@ -12,60 +16,86 @@ from src.utils import constants, teammaps, playermaps
 from src.uploaders.uploader import *
 
 
+
 def main():
+    
     # pd.set_option('display.max_columns',50)
     # pd.set_option('display.max_columns',999)
     # pd.set_option('display.max_rows',999)
     
-    ### -> 매일 돌릴 필요 없는 모듈
-    # r = get_team_roasters()
-    
-    ################## --- INITIATE --- ###################
-    ############ Get Park Factors (Done)
-    # park_factors = get_park_factors() #-> 완료
-    # upload_dataframes(park_factors, 'PA')
-    # ############ Get Team Depthcharts (Done)
-    # d = get_team_depthcharts() #-> 완료
-    # upload_dataframes(d, 'DP')
-    # ############ Get General Team Stats
-    # team = get_team_batting_table(start_season=2015,end_season=2021) #-> 완료
-    # upload_dataframes(team, 'TB')
-    # f = get_team_fielding_table() #-> 완료
-    # upload_dataframes(f, 'TF')
-    # pp = get_team_pitching_table(2015, 2021) # -> 완료
-    # # upload_dataframes(pp, 'TP') 
-    
-    ################################################################################# WIP
+    # print('Initiating')
+    # print("Getting Player Roaster")
+    # rb, rp = get_team_roasters()
+    # upload_dataframes(rb, 'B')
+    # upload_dataframes(rp, 'P')
 
-    # ############ Get Match and Lineups
+    # print("Getting Park Factors")
+    # park_factors = get_park_factors()
+    # upload_dataframes(park_factors, 'PA')
+    
+    # print("Getting Depth Charts")
+    # d = get_team_depthcharts()
+    # upload_dataframes(d, 'DP')
+    
+    # print("Get Batting Table")
+    # team = get_team_batting_table(2021,2021)
+    # upload_dataframes(team, 'TB')
+    
+    # print("Get Fielding Table")
+    # f = get_team_fielding_table()
+    # upload_dataframes(f, 'TF')
+    
+    # print("Get Pitching Table")
+    # pp = get_team_pitching_table(2015, 2021)
+    # upload_dataframes(pp, 'TP') 
+
+    # print("Get Matchups/Lineups")
     # matches, players = get_matches('2021-08-03')
     # clear_sheet('M')
     # upload_dataframes(matches,'M')
-    
-    # ############ Get Team H2H by Seasons
-    # for i in range(0, len(matches)):
+    # h2h_p = pd.DataFrame()
+    # h2h_b = pd.DataFrame()
+    # split_b = pd.DataFrame()
+    # split_p = pd.DataFrame()
+    # for i in tqdm(range(0, len(matches)),desc="Getting H2H/Splits"):
     #     visit = matches.loc[[i],['Visitor']].to_numpy()
     #     home = matches.loc[[i], ['Home']].to_numpy()
+    #     visitph = matches.loc[[i], ['Visitor Pitcher Hand']].to_numpy
+    #     homeph = matches.loc[[i], ['Home Pitcher Hand']].to_numpy
+    #     visitph = str(visitph[0][0])
+    #     homeph = str(homeph([0][0]))
     #     visit = str(visit[0][0])
     #     home = str(home[0][0])
-    #     h2h_p = get_head_to_head(visit,home,2021,log_type="pitching")
-    #     h2h_b = get_head_to_head(visit,home,2021,log_type="batting")
-    #     upload_dataframes(h2h_p, 'TH_P')
-    #     upload_dataframes(h2h_b, 'TH_B')
-    #     -> dataframe 하나로 머지해서 업로드하는걸로 하자
+    #     h2h_pp = get_head_to_head(visit,home,2021,log_type="pitching")
+    #     h2h_bb = get_head_to_head(visit,home,2021,log_type="batting")
+    #     h2h_p = pd.concat([h2h_p, h2h_pp], axis=0)
+    #     h2h_b = pd.concat([h2h_b, h2h_bb], axis=0)
+    #     split_vb = get_fgr_split(visit, 'B', home, hand=None, opphand=homeph, home='A')
+    #     split_b = pd.concat([split_b, split_vb], axis=0)
+    #     split_vb = get_fgr_split(home, 'B', visit, hand=None, opphand=visitph, home='A')
+    #     split_b = pd.concat([split_b, split_vb], axis=0)
+    #     split_vp = get_fgr_split(visit, 'P', home, hand=None, opphand='L', home='A')
+    #     split_p = pd.concat([split_p, split_vp], axis=0)
+    #     split_vp = get_fgr_split(visit, 'P', home, hand=None, opphand='R', home='A')
+    #     split_p = pd.concat([split_p, split_vp], axis=0)
+    #     split_vp = get_fgr_split(home, 'P', visit, hand=None, opphand='L', home='H')
+    #     split_p = pd.concat([split_p, split_vp], axis=0)
+    #     split_vp = get_fgr_split(home, 'P', visit, hand=None, opphand='R', home='H')
+    #     split_p = pd.concat([split_p, split_vp], axis=0)
+    # upload_dataframes(h2h_p, 'TH_P')
+    # upload_dataframes(h2h_b, 'TH_B')
+    # upload_dataframes(split_b, 'PB')
+    # upload_dataframes(split_p, 'PP')
     
-    
-    # print(get_teambatting_split(DICT_TEAMNAMES['ARI'][16], 'L'))
-    # get_fgr_split('COL','B','STL')
+    # Get Splits
+    # Order
+    # batter split : pitchers hand + home/away
+    # pitcher split : vLHH + home/away & vRHH + home/away
+    # total 3 dataframes to merge
         
-    # Get Player statcast_batting and pitchervsbatter
-    pitcherid = find_player(source='BBREF',full_name="Albert Abreu")
-
-
-
+    df = get_fgr_split('ARI','P',opp='PHI', hand=None, opphand='L')
+    print(df)
 
     
-
-
 if __name__ == "__main__":
     main()
