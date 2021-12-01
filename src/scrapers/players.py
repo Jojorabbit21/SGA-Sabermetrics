@@ -4,27 +4,11 @@ from time import sleep
 from bs4 import BeautifulSoup
 from pybaseball import get_splits
 from pybaseball import statcast_batter, statcast_pitcher
+from pybaseball import statcast
 from src.utils.playermaps import *
 from src.utils.constants import *
 from src.utils.dictionaries import *
 
-# def get_player_split(brefid, player_info=True, year=2021, type=['P','B']):
-def get_player_split():
-#     df, player_info_dict = get_splits('troutmi01', player_info=True, year=2021)
-#     # Season totals, platoon splits, home/away, vs. Power/Finesse Pitchers vs. Ground Ball/Fly Ball Pitchers, Hit Location, Hit Trajectory, Opponent, Game Conditions, Ballparks
-#     # Count/Balls-Strikes, Number of Outs in Inning, Bases Occupied, Times Facing Opponent in Game,  
-    
-#     df2, player_info_dict2 = get_splits('lestejo01', pitching_splits=True, year=2021)
-#     # Season totals, platoon splits, home/away, pitching role, run support, Clutch stats, pitch count, days of rest, hit location, opponent, game conditions, ballparks, by umpire(심판 데이터를 나중에 따로 뽑아서 여기서 추출)
-#     return df, player_info_dict, df2, player_info_dict2
-
-    URL = 'https://swishanalytics.com/optimus/mlb/batting-splits'
-    headers={'User-Agent':USER_AGENT}
-    r = requests.get(URL, headers=headers)
-    sleep(5)
-    html = r.text  
-    df = pd.read_html(html)
-    print(df)
 
 # Play-by-play data of batter
 def get_batter(playerid, start_date=None, end_date=None, pitcher_against=None):
@@ -86,3 +70,7 @@ def get_pitcher(playerid, start_date, end_date, batter_against=0):
             data = data.reset_index(drop=True)
         
     return data
+
+def get_statcast(start_dt='2017-03-01', end_dt='2021-11-31'):
+    df = statcast(start_dt=start_dt, end_dt=end_dt)
+    return df

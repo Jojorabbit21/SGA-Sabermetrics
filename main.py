@@ -21,7 +21,7 @@ def main():
     
     # pd.set_option('display.max_columns',50)
     # pd.set_option('display.max_columns',999)
-    # pd.set_option('display.max_rows',999)
+    pd.set_option('display.max_rows',999)
     
     # print('Initiating')
     # print("Getting Player Roaster")
@@ -38,7 +38,7 @@ def main():
     # upload_dataframes(d, 'DP')
     
     # print("Get Batting Table")
-    # team = get_team_batting_table(2021,2021)
+    # team = get_team_batting_table(2017,2021)
     # upload_dataframes(team, 'TB')
     
     # print("Get Fielding Table")
@@ -60,10 +60,10 @@ def main():
     # for i in tqdm(range(0, len(matches)),desc="Getting H2H/Splits"):
     #     visit = matches.loc[[i],['Visitor']].to_numpy()
     #     home = matches.loc[[i], ['Home']].to_numpy()
-    #     visitph = matches.loc[[i], ['Visitor Pitcher Hand']].to_numpy
-    #     homeph = matches.loc[[i], ['Home Pitcher Hand']].to_numpy
+    #     visitph = matches.loc[[i], ['Visitor Pitcher Hand']].to_numpy()
+    #     homeph = matches.loc[[i], ['Home Pitcher Hand']].to_numpy()
     #     visitph = str(visitph[0][0])
-    #     homeph = str(homeph([0][0]))
+    #     homeph = str(homeph[0][0])
     #     visit = str(visit[0][0])
     #     home = str(home[0][0])
     #     h2h_pp = get_head_to_head(visit,home,2021,log_type="pitching")
@@ -82,6 +82,10 @@ def main():
     #     split_p = pd.concat([split_p, split_vp], axis=0)
     #     split_vp = get_fgr_split(home, 'P', visit, hand=None, opphand='R', home='H')
     #     split_p = pd.concat([split_p, split_vp], axis=0)
+    # clear_sheet('TH_P')
+    # clear_sheet('TH_B')
+    # clear_sheet('PB')
+    # clear_sheet('PP')
     # upload_dataframes(h2h_p, 'TH_P')
     # upload_dataframes(h2h_b, 'TH_B')
     # upload_dataframes(split_b, 'PB')
@@ -92,10 +96,16 @@ def main():
     # batter split : pitchers hand + home/away
     # pitcher split : vLHH + home/away & vRHH + home/away
     # total 3 dataframes to merge
-        
-    df = get_fgr_split('ARI','P',opp='PHI', hand=None, opphand='L')
-    print(df)
-
+    
+    # split = pd.DataFrame()
+    # df = get_fgr_split('ARI','P',opp='PHI', hand='R', opphand='L', home='A')
+    # split = pd.concat([split,df],axis=0)
+    # df = get_fgr_split('PHI','P',opp='ARI', hand='L', opphand='L', home='H')
+    # split = pd.concat([split,df],axis=0)
+    # print(split)
+    
+    df = get_statcast('2020-03-01','2021-11-30')
+    df.to_csv('statcast.csv')
     
 if __name__ == "__main__":
     main()

@@ -33,9 +33,10 @@ def get_batting_leaderboard(team, start_season=2010, end_season=2021):
     return data
 
 def get_team_batting_table(start_season=2015, end_season=2021):
-    data = team_batting(start_season=start_season, end_season=end_season, league='ALL', ind=1)
+    data = team_batting(start_season=start_season, end_season=end_season, league='ALL', ind=1, split_seasons=False)
     data.sort_values(by='Team',axis=0, ascending=True, inplace=True)
-    data = data.drop(['teamIDfg', 'Season', 'Age'], axis=1)
+    data = data.drop(['teamIDfg', 'Age'], axis=1)
+    # data = data.drop(['teamIDfg', 'Season', 'Age'], axis=1)
     data.reset_index(inplace=True, drop=True)
     return data
 
@@ -112,7 +113,7 @@ def get_head_to_head(team, against, year:int=2021, log_type="batting"):
     
     return data
 
-def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[None,'L','R'], time=[None,'D','N'], home=[None,'H','A'], start_date='2021-03-01', end_date='2021-11-01'):
+def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[None,'L','R'], time=[None,'D','N'], home=[None,'H','A'], start_date='2017-03-01', end_date='2021-11-01'):
     
     path = chromedriver_autoinstaller.install()
     options = Options()
@@ -145,29 +146,38 @@ def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[
     #     10 = Away
     
     arr = []
+    con1="";con2="";con3="";con4=""
     if type == 'P':
         arr.append( str(DICT_FGR_SPLIT[team][2]) )
         if opp:
             arr.append( str(DICT_FGR_SPLIT[opp][3]))
         if hand:
             if hand == 'L':
+                con1 = 'L'
                 arr.append('96')
             elif hand == 'R':
+                con1 = 'R'
                 arr.append('97')
         if opphand:
             if opphand == 'L':
+                con2 = 'L'
                 arr.append('5')
             elif opphand == 'R':
+                con2 = 'R'
                 arr.append('6')
         if time:
             if time == 'D':
+                con3 = 'D'
                 arr.append('90')
             elif time =='N':
+                con3 = 'N'
                 arr.append('91')
         if home:
             if home == 'H':
+                con4 = 'H'
                 arr.append('9')
             elif home == 'A':
+                con4 = 'A'
                 arr.append('10')    
     else: #Batting Split
         arr.append(str(DICT_FGR_SPLIT[team][0]))
@@ -175,32 +185,61 @@ def get_fgr_split(team, type=['P','B'], opp=None, hand=[None,'L','R'], opphand=[
             arr.append(str(DICT_FGR_SPLIT[opp][1]))
         if hand:
             if hand == 'L':
+                con1 = 'L'
                 arr.append('3')
             elif hand == 'R':
+                con1 = 'R'
                 arr.append('4')
         if opphand:
             if opphand == 'L':
+                con2 = 'L'
                 arr.append('1')
             elif opphand == 'R':
+                con2 = 'R'
                 arr.append('2')
         if time:
             if time == 'D':
+                con3 = 'D'
                 arr.append('90')
             elif time =='N':
+                con3 = 'N'
                 arr.append('91')
         if home:
             if home == 'H':
+                con4 = 'H'
                 arr.append('7')
             elif home == 'A':
+                con4 = 'A'
                 arr.append('8')         
     
     splitArr = ",".join(arr)
     URL = URL_FGR['SPLIT'].format(splitArr, type, start_date, end_date)
     print(URL)
     driver.get(URL)
+    driver.implicitly_wait(5)
     html = driver.page_source
     driver.close()
     df = pd.read_html(html, encoding='utf-8')
+    # df = pd.read_html(html, encoding='utf-8', match=r'^(Season|#)$')
     df = df[-1:][0]
+    
+    # Sanitize
+    try:
+        df = df.drop(['#', 'Season', 'Tm'],axis=1)
+    except:
+        pass
+    
+    con_arr = []
+    for i in range(0, len(df)):
+        li = []
+        li.append(team)
+        li.append(opp)
+        li.append(con1)
+        li.append(con2)
+        li.append(con3)
+        li.append(con4)
+        con_arr.append(li)
+    con_df = pd.DataFrame(data=con_arr, columns=['Team','Opp','H','vH','DN','HA'])
+    df = pd.concat([con_df, df], axis=1)
 
     return df
