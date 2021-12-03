@@ -1,3 +1,4 @@
+from numpy import log
 import pandas as pd
 import datetime
 import chromedriver_autoinstaller
@@ -85,6 +86,7 @@ def get_head_to_head(team, against, year:int=2021, log_type="batting"):
     team = DICT_TEAMNAMES[team][DICT_SOURCE['BBREFTEAM']]
     against = DICT_TEAMNAMES[against][DICT_SOURCE['BBREFTEAM']]
     data = team_game_logs(season=year, team=team, log_type=log_type)
+    data_opp = team_game_logs(season=year, team=against, log_type=log_type)
     
     # Sanitize DataFrame
     debris = data[ data['Opp'] != against ].index
@@ -95,7 +97,7 @@ def get_head_to_head(team, against, year:int=2021, log_type="batting"):
     home = data['Home']
     opp = data['Opp']
     result = data['Rslt']
-    data.drop(['Game','Date','Home','Opp','Rslt'], axis=1, inplace=True)
+    data.drop(['Game','Date','Home','Opp','Rslt','PitchersUsed'], axis=1, inplace=True)
     data = data.reset_index(drop=True)
     header = pd.DataFrame(index=range(0,len(home)), columns = ['Date', 'Visitor','Home','Result','Score'])
     for i in range(len(home)):
@@ -110,6 +112,37 @@ def get_head_to_head(team, against, year:int=2021, log_type="batting"):
         header.loc[[i],['Result']] = r[0]
         header.loc[[i],['Score']] = r[1]
     data = pd.concat([header, data], axis=1)
+
+    # Sanitize Opp DataFrame
+    debris = data_opp[ data_opp['Opp'] != team ].index
+    if len(debris) > 0:
+        data_opp.drop(debris, inplace=True)
+        data_opp = data_opp.reset_index(drop=True)
+    date = data_opp['Date']
+    home = data_opp['Home']
+    opp = data_opp['Opp']
+    result = data_opp['Rslt']
+    data_opp.drop(['Game','Date','Home','Opp','Rslt','PitchersUsed'], axis=1, inplace=True)
+    data_opp = data_opp.reset_index(drop=True)
+    header = pd.DataFrame(index=range(0,len(home)), columns = ['Date', 'Visitor','Home','Result','Score'])
+    for i in range(len(home)):
+        header.loc[[i],['Date']] = date[i]
+        if home[i] == True:
+            header.loc[[i],['Visitor']] = opp[i]
+            header.loc[[i],['Home']] = against
+        else:
+            header.loc[[i],['Visitor']] = against
+            header.loc[[i],['Home']] = opp[i]
+        r = str(result[i]).split(",")
+        header.loc[[i],['Result']] = r[0]
+        header.loc[[i],['Score']] = r[1]
+    data_opp = pd.concat([header, data_opp], axis=1)
+    
+    data = pd.concat([data, data_opp], axis=1)
+    data = data.sort_index(ascending=True)
+    
+    # Sanitize Final Dataframes
+    
     
     return data
 
