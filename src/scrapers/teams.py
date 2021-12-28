@@ -29,11 +29,11 @@ def get_team_roasters():
 
   return batting_df, pitching_df
 
-def get_batting_leaderboard(team, start_season=2010, end_season=2021):
+def get_batting_leaderboard(team, start_season, end_season):
     data = team_batting_bref(team, start_season, end_season)
     return data
 
-def get_team_batting_table(start_season=2015, end_season=2021):
+def get_team_batting_table(start_season, end_season):
     data = team_batting(start_season=start_season, end_season=end_season, league='ALL', ind=1, split_seasons=False)
     data.sort_values(by='Team',axis=0, ascending=True, inplace=True)
     data = data.drop(['teamIDfg', 'Age'], axis=1)
@@ -41,12 +41,12 @@ def get_team_batting_table(start_season=2015, end_season=2021):
     data.reset_index(inplace=True, drop=True)
     return data
 
-def get_fielding_leaderboard(team, start_season=2015, end_season=2021):
+def get_fielding_leaderboard(team, start_season, end_season):
     data = team_fielding.team_fielding_bref(team, start_season=start_season, end_season=end_season)
     return data
 
-def get_team_fielding_table(start_season=2012, end_season=2021):
-    data = pd.read_html(URL_FGR['TEAM_FIELDING'])
+def get_team_fielding_table(start_season, end_season):
+    data = pd.read_html(str(URL_FGR['TEAM_FIELDING']).format(end_season, start_season))
     data = data[-2:-1][0]
     data = data['1  Page size:  select  30 items in 1 pages']
     for i in range(len(data)):
@@ -61,14 +61,14 @@ def get_team_fielding_table(start_season=2012, end_season=2021):
     data.reset_index(inplace=True, drop=True)
     return data
 
-def get_pitching_leaderboard(team, start_season=2010, end_season=2021):
+def get_pitching_leaderboard(team, start_season, end_season):
     data = team_pitching_bref(team, start_season=start_season, end_season=end_season)
     return data
 
-def get_team_pitching_table(start_season=2018, end_season=2021):
+def get_team_pitching_table(start_season, end_season):
     data = pd.DataFrame(index=range(0,30))
     for i in range(3):
-        series = pd.read_html(URL_FGR['TEAM_PITCHING'][i])
+        series = pd.read_html(str(URL_FGR['TEAM_PITCHING'][i]).format(end_season, start_season))
         series = series[-2:-1][0] 
         series = series['1  Page size:  select  30 items in 1 pages']
         series = series.drop([series.index[30]],axis=0)
