@@ -17,11 +17,13 @@ Umpire Stats
 -> zone distance 를 통해 call accuracy 산출
 '''
 
+# Ump List 추출
 def get_ump_list():
   filepath = './rawfish/umpires/ump_scorecards/umpires.csv'
   df = pd.read_csv(filepath)
   return df
 
+# Ump 이름별로 csv 파일 생성
 def create_ump_history(namelist):
   created = 0
   columns = ['pitch_type','game_date','release_speed','release_pos_x','release_pos_z','spin_axis','batter','pitcher',
@@ -35,7 +37,8 @@ def create_ump_history(namelist):
     else:
       continue
   print("{} file created".format(created))
-  
+
+# Ump 이름별로 기록 저장
 def push_ump_history(full, abbr):
   if os.path.isfile("./bakery/umpire_strikezones/refined/umpires/{}.csv".format(abbr)):
     print("Pushing {}'s Umpire Records".format(full))
@@ -46,6 +49,42 @@ def push_ump_history(full, abbr):
   else:
     print("there is no umpire {}.".format(full))
 
+# statcast 파일의 비어있는 umpire column 채우기
+def push_ump_names(season):
+  
+  filepath_header = './bakery/umpire_strikezones/'
+  exist_filepath = './bakery/umpire_strikezones/refined/refined_{}.csv'.format(season)
+  if os.path.isfile(exist_filepath):
+    print("File Already Exists. Open Legacy")
+    sc_df = pd.read_csv(exist_filepath)
+  else:
+    print("No File Exists. Create New One.")
+    sc_df = pd.read_csv(filepath_header + 'statcast_{}.csv'.format(season))
+  
+  retrosheet = '{}.csv'.format(season)
+  rs_df = pd.read_csv(filepath_header + retrosheet)
+  rs_df = rs_df.loc[:,['Date','Visitor','Home','UmpName']]
+  
+  res_df = pd.DataFrame()
+  
+  for i in tqdm(range(len(rs_df)), desc='Sanitizing {}'.format(season)):
+    target_date = int(rs_df.at[i, 'Date'])
+    target_visitor = str(rs_df.at[i, 'Visitor'])
+    target_home = str(rs_df.at[i, 'Home'])
+    target_umpname = str(rs_df.at[i, 'UmpName'])  
+    df = sc_df[(sc_df['game_date'] == target_date) & (sc_df['away_team'] == target_visitor) & (sc_df['home_team'] == target_home)]
+    df = df.loc[:,['pitch_type','game_date','release_speed','release_pos_x','release_pos_z','spin_axis','batter','pitcher','events','description','zone','stand','p_throws',
+                  'home_team','away_team','type','hit_location','bb_type','plate_x','plate_z','umpire','delta_run_exp']]
+    df[['umpire']] = df[['umpire']].fillna(target_umpname)
+    res_df = pd.concat([res_df, df], axis=0)
+    
+  print("Saving Files to refined folder.")  
+  res_df.to_csv('./bakery/umpire_strikezones/refined/refined_{}.csv'.format(season))    
+  
+
+
+
+# 시각화
 def sanitize_ump_history(full, abbr):
   if os.path.isfile("./bakery/umpire_strikezones/refined/umpires/{}.csv".format(abbr)):
     print("Sanitizing {}'s pitch-by-pitch record".format(full))
@@ -136,19 +175,15 @@ def sanitize_ump_history(full, abbr):
     #   plt.savefig(dest_path, facecolor='#eeeeee')  
 
     # called ball but inside strikezone (vLHP,vRHP)
-    biz = history.query('(plate_x > -1 and plate_x < 1) and (plate_z > 1.5 and plate_z < 3.5) and type == "B"')
-    biz_lhp = biz.query('p_throws == "L"')
-    biz_lhp_x = biz_lhp['plate_x']
-    biz_lhp_y = biz_lhp['plate_z']
-    biz_rhp = biz.query('p_throws == "R"')
-    biz_rhp_x = biz_rhp['plate_x']
-    biz_rhp_y = biz_rhp['plate_z']
+    biz = history.query('(type == "S")')
+    # biz_lhp = biz.query('p_throws == "L"')
+    # biz_rhp = biz.query('p_throws == "R"')
     
-    fig , sax = plt.subplots(1,1)
-    sax = sns.scatterplot(x=biz_lhp_x, y=biz_lhp_y, s=500, facecolor='w', edgecolor='r', linewidth=2, alpha=0.3)
+    fig , sax = plt.subplots(1,1, figsize=(8,9))
+    sax = sns.scatterplot(x=biz['plate_x'], y=biz['plate_z'], style=biz['call'] , hue=biz['call'], markers=['X','o'])
     sax.set_xlim(-2,2)
     sax.set_ylim(1,4)
-    sax.set_title('{} - Ball/InsideSZ Scatter plot'.format(full))
+    sax.set_title('{} - InsideSZ Scatter plot'.format(full))
     sax.set_xlabel('vLHP')
     sax.set_ylabel('')
     sax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False, alpha=0.4))
@@ -181,79 +216,127 @@ def sanitize_ump_history(full, abbr):
     # if not os.path.isfile(dest_path):
     #   plt.savefig(dest_path, facecolor='#eeeeee')     
 
-def evaluate_proximity(season):
+# borderline call 정확도 구하기
+def evaluate_proximity(abbr):
   # Borderline = ((-1.2 <= plate_x <= -1) || (1 <= plate_x <= 1.2)) && ((1.3 <= plate_z <= 1.5) || (3.5 <= plate_z <= 3.7))
   # 정확히 보더라인인 객체와 얼마나 가까운지? target_distance/border_distance => -0.8/-1 => 0.8/1 => 80%
-  exist_filepath = './bakery/umpire_strikezones/refined/refined_{}.csv'.format(season)
+  exist_filepath = './bakery/umpire_strikezones/refined/umpires/{}.csv'.format(abbr)
   if os.path.isfile(exist_filepath):
     df = pd.read_csv(exist_filepath)
     df_length = len(df)
-    print("Evaluate {} Proximity".format(season))
-    prox = pd.DataFrame(index=range(df_length), columns=['prox_x','prox_z','prox_pos_x','prox_pos_z'])
+    print("Evaluate {}'s Call Proximity".format(abbr))
+    
+    '''
+    # if not 'prox_x' in df.columns:
+    #   prox = pd.DataFrame(index=range(df_length), columns=['prox_x','prox_z','prox_pos_x','prox_pos_z','call'])
+    #   for i in range(df_length):
+    #     plate_x = df.at[i, 'plate_x']
+    #     plate_z = df.at[i, 'plate_z']
+    #     type = df.at[i, 'type']
+        
+    #     if type != 'X':
+    #       if type == 'B': # If Called Ball
+    #         if plate_x < -1: # left of border_x
+    #           prox.loc[i, 'prox_pos_x'] = 'out'
+    #           call_x = 'r'
+    #         elif plate_x > 1: # right of border_x
+    #           prox.loc[i, 'prox_pos_x'] = 'out'
+    #           call_x = 'r'
+    #         else:
+    #           prox.loc[i, 'prox_pos_x'] = 'in'
+    #           call_x = 'w'
+              
+    #         if plate_z < 1.5: #below border_z
+    #           prox.loc[i, 'prox_pos_z'] = 'out'
+    #           call_z = 'r'
+    #         elif plate_z > 3.5: #above border_z
+    #           prox.loc[i, 'prox_pos_z'] = 'out'
+    #           call_z = 'r'
+    #         else:
+    #           prox.loc[i, 'prox_pos_z'] = 'in'
+    #           call_z = 'w'
+    #       elif type == 'S': # If Called Strike
+    #         if plate_x < -1: # left of border_x
+    #           prox.loc[i, 'prox_pos_x'] = 'out'
+    #           call_x = 'w'
+    #         elif plate_x > 1: # right of border_x
+    #           prox.loc[i, 'prox_pos_x'] = 'out'
+    #           call_x = 'w'
+    #         else:
+    #           prox.loc[i, 'prox_pos_x'] = 'in'
+    #           call_x = 'r'
+              
+    #         if plate_z < 1.5: #below border_z
+    #           prox.loc[i, 'prox_pos_z'] = 'out'
+    #           call_z = 'w'
+    #         elif plate_z > 3.5: #above border_z
+    #           prox.loc[i, 'prox_pos_z'] = 'out'
+    #           call_z = 'w'
+    #         else:
+    #           prox.loc[i, 'prox_pos_z'] = 'in'
+    #           call_z = 'r'
+    #       if call_x == 'r' and call_z == 'r':
+    #         prox.loc[i, 'call'] = 'r'
+    #       else:
+    #         prox.loc[i, 'call'] = 'w'
+              
+    #     if plate_x > 0:
+    #       prox.loc[i, 'prox_x'] = abs(plate_x-1)
+    #     elif plate_x < 0:
+    #       prox.loc[i, 'prox_x'] = abs(abs(plate_x)-1)
+          
+    #     if plate_z > 2.5:
+    #       prox.loc[i, 'prox_z'] = abs(plate_z-3.5)
+    #     elif plate_z < 2.5:
+    #       prox.loc[i, 'prox_z'] = abs(plate_z-1.5)
+    #   df = pd.concat([df, prox], axis=1)
+    # else:
+    '''
+    
     for i in range(df_length):
       plate_x = df.at[i, 'plate_x']
       plate_z = df.at[i, 'plate_z']
-      if plate_x < -1: # left of border_x
-        prox.loc[i, 'prox_pos_x'] = 'out'
-      elif plate_x > 1: # right of border_x
-        prox.loc[i, 'prox_pos_x'] = 'out'
-      elif -1 <= plate_x <= 1:
-        prox.loc[i, 'prox_pos_x'] = 'in'
-      if plate_z < 1.5: #below border_z
-        prox.loc[i, 'prox_pos_z'] = 'out'
-      elif plate_z > 3.5: #above border_z
-        prox.loc[i, 'prox_pos_z'] = 'out'
-      elif 1.5 <= plate_z <= 3.5:
-        prox.loc[i, 'prox_pos_z'] = 'in'
+      tp = df.at[i, 'type']
       
-      if plate_x > 0:
-        prox.loc[i, 'prox_x'] = abs(plate_x-1)
-      elif plate_x < 0:
-        prox.loc[i, 'prox_x'] = abs(abs(plate_x)-1)
-        
-      if plate_z > 2.5:
-        prox.loc[i, 'prox_z'] = abs(plate_z-3.5)
-      elif plate_z < 2.5:
-        prox.loc[i, 'prox_z'] = abs(plate_z-1.5)
-    
-    df = pd.concat([df, prox], axis=1)
+      if tp == 'B': # If Called Ball
+        if plate_x < -1: # left of border_x
+          call_x = 'r'
+        elif plate_x > 1: # right of border_x
+          call_x = 'r'
+        else:
+          call_x = 'w'
+          
+        if plate_z < 1.5: #below border_z
+          call_z = 'r'
+        elif plate_z > 3.5: #above border_z
+          call_z = 'r'
+        else:
+          call_z = 'w'
+      elif tp == 'S': # If Called Strike
+        if plate_x < -1: # left of border_x
+          call_x = 'w'
+        elif plate_x > 1: # right of border_x
+          call_x = 'w'
+        else:
+          call_x = 'r'
+          
+        if plate_z < 1.5: #below border_z
+          call_z = 'w'
+        elif plate_z > 3.5: #above border_z
+          call_z = 'w'
+        else:
+          call_z = 'r'
+            
+        if call_x == 'r' and call_z == 'r':
+          df.loc[i, 'call'] = 'r'
+        else:
+          df.loc[i, 'call'] = 'w'
+            
     df.to_csv(exist_filepath,mode="w",encoding='utf-8-sig')
     
 
-def push_ump_names(season):
-  
-  filepath_header = './bakery/umpire_strikezones/'
-  exist_filepath = './bakery/umpire_strikezones/refined/refined_{}.csv'.format(season)
-  if os.path.isfile(exist_filepath):
-    print("File Already Exists. Open Legacy")
-    sc_df = pd.read_csv(exist_filepath)
-  else:
-    print("No File Exists. Create New One.")
-    sc_df = pd.read_csv(filepath_header + 'statcast_{}.csv'.format(season))
-  
-  retrosheet = '{}.csv'.format(season)
-  rs_df = pd.read_csv(filepath_header + retrosheet)
-  rs_df = rs_df.loc[:,['Date','Visitor','Home','UmpName']]
-  
-  res_df = pd.DataFrame()
-  
-  for i in tqdm(range(len(rs_df)), desc='Sanitizing {}'.format(season)):
-    target_date = int(rs_df.at[i, 'Date'])
-    target_visitor = str(rs_df.at[i, 'Visitor'])
-    target_home = str(rs_df.at[i, 'Home'])
-    target_umpname = str(rs_df.at[i, 'UmpName'])  
-    df = sc_df[(sc_df['game_date'] == target_date) & (sc_df['away_team'] == target_visitor) & (sc_df['home_team'] == target_home)]
-    df = df.loc[:,['pitch_type','game_date','release_speed','release_pos_x','release_pos_z','spin_axis','batter','pitcher','events','description','zone','stand','p_throws',
-                  'home_team','away_team','type','hit_location','bb_type','plate_x','plate_z','umpire','delta_run_exp']]
-    df[['umpire']] = df[['umpire']].fillna(target_umpname)
-    res_df = pd.concat([res_df, df], axis=0)
-    
-  print("Saving Files to refined folder.")  
-  res_df.to_csv('./bakery/umpire_strikezones/refined/refined_{}.csv'.format(season))    
-  
-  
 if __name__ == '__main__':
-  # df = get_ump_list()
+  df = get_ump_list()
   # create_ump_history(df['Abbr'])
   # for i in range(len(df)):
   #   # push_ump_history(str(df.at[i,'Umpire']),str(df.at[i,'Abbr']))
@@ -261,5 +344,6 @@ if __name__ == '__main__':
   
   # sanitize_ump_history('Bill Miller','bill_miller')
   
-  for season in range(2015,2022):
-    evaluate_proximity(season)
+  # for i in range(len(df)):
+  #   evaluate_proximity(df.at[i,'Abbr'])
+  sanitize_ump_history(df.at[0,'Umpire'], df.at[0,'Abbr'])
