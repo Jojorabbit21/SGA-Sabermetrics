@@ -227,70 +227,70 @@ def evaluate_proximity(abbr):
     print("Evaluate {}'s Call Proximity".format(abbr))
     
     '''
-    # if not 'prox_x' in df.columns:
-    #   prox = pd.DataFrame(index=range(df_length), columns=['prox_x','prox_z','prox_pos_x','prox_pos_z','call'])
-    #   for i in range(df_length):
-    #     plate_x = df.at[i, 'plate_x']
-    #     plate_z = df.at[i, 'plate_z']
-    #     type = df.at[i, 'type']
+    if not 'prox_x' in df.columns:
+      prox = pd.DataFrame(index=range(df_length), columns=['prox_x','prox_z','prox_pos_x','prox_pos_z','call'])
+      for i in range(df_length):
+        plate_x = df.at[i, 'plate_x']
+        plate_z = df.at[i, 'plate_z']
+        type = df.at[i, 'type']
         
-    #     if type != 'X':
-    #       if type == 'B': # If Called Ball
-    #         if plate_x < -1: # left of border_x
-    #           prox.loc[i, 'prox_pos_x'] = 'out'
-    #           call_x = 'r'
-    #         elif plate_x > 1: # right of border_x
-    #           prox.loc[i, 'prox_pos_x'] = 'out'
-    #           call_x = 'r'
-    #         else:
-    #           prox.loc[i, 'prox_pos_x'] = 'in'
-    #           call_x = 'w'
+        if type != 'X':
+          if type == 'B': # If Called Ball
+            if plate_x < -1: # left of border_x
+              prox.loc[i, 'prox_pos_x'] = 'out'
+              call_x = 'r'
+            elif plate_x > 1: # right of border_x
+              prox.loc[i, 'prox_pos_x'] = 'out'
+              call_x = 'r'
+            else:
+              prox.loc[i, 'prox_pos_x'] = 'in'
+              call_x = 'w'
               
-    #         if plate_z < 1.5: #below border_z
-    #           prox.loc[i, 'prox_pos_z'] = 'out'
-    #           call_z = 'r'
-    #         elif plate_z > 3.5: #above border_z
-    #           prox.loc[i, 'prox_pos_z'] = 'out'
-    #           call_z = 'r'
-    #         else:
-    #           prox.loc[i, 'prox_pos_z'] = 'in'
-    #           call_z = 'w'
-    #       elif type == 'S': # If Called Strike
-    #         if plate_x < -1: # left of border_x
-    #           prox.loc[i, 'prox_pos_x'] = 'out'
-    #           call_x = 'w'
-    #         elif plate_x > 1: # right of border_x
-    #           prox.loc[i, 'prox_pos_x'] = 'out'
-    #           call_x = 'w'
-    #         else:
-    #           prox.loc[i, 'prox_pos_x'] = 'in'
-    #           call_x = 'r'
+            if plate_z < 1.5: #below border_z
+              prox.loc[i, 'prox_pos_z'] = 'out'
+              call_z = 'r'
+            elif plate_z > 3.5: #above border_z
+              prox.loc[i, 'prox_pos_z'] = 'out'
+              call_z = 'r'
+            else:
+              prox.loc[i, 'prox_pos_z'] = 'in'
+              call_z = 'w'
+          elif type == 'S': # If Called Strike
+            if plate_x < -1: # left of border_x
+              prox.loc[i, 'prox_pos_x'] = 'out'
+              call_x = 'w'
+            elif plate_x > 1: # right of border_x
+              prox.loc[i, 'prox_pos_x'] = 'out'
+              call_x = 'w'
+            else:
+              prox.loc[i, 'prox_pos_x'] = 'in'
+              call_x = 'r'
               
-    #         if plate_z < 1.5: #below border_z
-    #           prox.loc[i, 'prox_pos_z'] = 'out'
-    #           call_z = 'w'
-    #         elif plate_z > 3.5: #above border_z
-    #           prox.loc[i, 'prox_pos_z'] = 'out'
-    #           call_z = 'w'
-    #         else:
-    #           prox.loc[i, 'prox_pos_z'] = 'in'
-    #           call_z = 'r'
-    #       if call_x == 'r' and call_z == 'r':
-    #         prox.loc[i, 'call'] = 'r'
-    #       else:
-    #         prox.loc[i, 'call'] = 'w'
+            if plate_z < 1.5: #below border_z
+              prox.loc[i, 'prox_pos_z'] = 'out'
+              call_z = 'w'
+            elif plate_z > 3.5: #above border_z
+              prox.loc[i, 'prox_pos_z'] = 'out'
+              call_z = 'w'
+            else:
+              prox.loc[i, 'prox_pos_z'] = 'in'
+              call_z = 'r'
+          if call_x == 'r' and call_z == 'r':
+            prox.loc[i, 'call'] = 'r'
+          else:
+            prox.loc[i, 'call'] = 'w'
               
-    #     if plate_x > 0:
-    #       prox.loc[i, 'prox_x'] = abs(plate_x-1)
-    #     elif plate_x < 0:
-    #       prox.loc[i, 'prox_x'] = abs(abs(plate_x)-1)
+        if plate_x > 0:
+          prox.loc[i, 'prox_x'] = abs(plate_x-1)
+        elif plate_x < 0:
+          prox.loc[i, 'prox_x'] = abs(abs(plate_x)-1)
           
-    #     if plate_z > 2.5:
-    #       prox.loc[i, 'prox_z'] = abs(plate_z-3.5)
-    #     elif plate_z < 2.5:
-    #       prox.loc[i, 'prox_z'] = abs(plate_z-1.5)
-    #   df = pd.concat([df, prox], axis=1)
-    # else:
+        if plate_z > 2.5:
+          prox.loc[i, 'prox_z'] = abs(plate_z-3.5)
+        elif plate_z < 2.5:
+          prox.loc[i, 'prox_z'] = abs(plate_z-1.5)
+      df = pd.concat([df, prox], axis=1)
+    else:
     '''
     
     for i in range(df_length):
