@@ -1,0 +1,4 @@
+strike + ball
+style = 'type'
+hue = 'call'
+markers = 2

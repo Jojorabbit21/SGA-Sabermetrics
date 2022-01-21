@@ -175,12 +175,12 @@ def sanitize_ump_history(full, abbr):
     #   plt.savefig(dest_path, facecolor='#eeeeee')  
 
     # called ball but inside strikezone (vLHP,vRHP)
-    biz = history.query('(type == "S")')
+    biz = history.query('type == "S"')
     # biz_lhp = biz.query('p_throws == "L"')
     # biz_rhp = biz.query('p_throws == "R"')
     
     fig , sax = plt.subplots(1,1, figsize=(8,9))
-    sax = sns.scatterplot(x=biz['plate_x'], y=biz['plate_z'], style=biz['call'] , hue=biz['call'], markers=['X','o'])
+    sax = sns.scatterplot(x=history['plate_x'], y=biz['plate_z'], s=10 ,style=biz['call'] , hue=biz['call'], markers=['X','o'], palette=['dodgerblue','red'])
     sax.set_xlim(-2,2)
     sax.set_ylim(1,4)
     sax.set_title('{} - InsideSZ Scatter plot'.format(full))
@@ -188,7 +188,9 @@ def sanitize_ump_history(full, abbr):
     sax.set_ylabel('')
     sax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False, alpha=0.4))
     plt.grid(True, color='gray', alpha=0.3, linestyle='--')
-    plt.show()
+    dest_path = './bakery/umpire_strikezones/refined/umpires/images/strikes_and_balls/{}.png'.format(abbr)
+    if not os.path.isfile(dest_path):
+      plt.savefig(dest_path, facecolor='#eeeeee')     
     
     # fig, ax = plt.subplots(1,1, figsize=(10,8))
     # ax = sns.kdeplot(x=biz_lhp_x, y=biz_lhp_y, cmap="OrRd", shade=True)
@@ -212,9 +214,7 @@ def sanitize_ump_history(full, abbr):
     # ax.set_ylabel('')
     # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
     # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_biz_rhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee')     
+
 
 # borderline call 정확도 구하기
 def evaluate_proximity(abbr):
@@ -294,44 +294,38 @@ def evaluate_proximity(abbr):
     '''
     
     for i in range(df_length):
+      tp = df.at[i, 'type']
+      des = df.at[i, 'description']
       plate_x = df.at[i, 'plate_x']
       plate_z = df.at[i, 'plate_z']
-      tp = df.at[i, 'type']
-      
-      if tp == 'B': # If Called Ball
-        if plate_x < -1: # left of border_x
-          call_x = 'r'
-        elif plate_x > 1: # right of border_x
+      if des == 'called_strike': # If called Strike
+        if plate_x > -1 or plate_x < 1:
           call_x = 'r'
         else:
           call_x = 'w'
-          
-        if plate_z < 1.5: #below border_z
-          call_z = 'r'
-        elif plate_z > 3.5: #above border_z
+        if plate_z > 1.5 or plate_z < 3.5:
           call_z = 'r'
         else:
           call_z = 'w'
-      elif tp == 'S': # If Called Strike
-        if plate_x < -1: # left of border_x
-          call_x = 'w'
-        elif plate_x > 1: # right of border_x
-          call_x = 'w'
-        else:
-          call_x = 'r'
-          
-        if plate_z < 1.5: #below border_z
-          call_z = 'w'
-        elif plate_z > 3.5: #above border_z
-          call_z = 'w'
-        else:
-          call_z = 'r'
-            
         if call_x == 'r' and call_z == 'r':
           df.loc[i, 'call'] = 'r'
         else:
           df.loc[i, 'call'] = 'w'
-            
+      elif tp == 'B': # If Called Ball
+        if plate_x < -1 or plate_x > 1:
+          call_x = 'r'
+        else:
+          call_x = 'w'
+        if plate_z < 1.5 or plate_z > 3.5:
+            call_z = 'r'
+        else:
+          call_z = 'w'
+        
+        if call_z == 'r' or call_x == 'r':
+          df.loc[i, 'call'] = 'r'
+        else:
+          df.loc[i, 'call'] = 'w'
+
     df.to_csv(exist_filepath,mode="w",encoding='utf-8-sig')
     
 
@@ -344,6 +338,6 @@ if __name__ == '__main__':
   
   # sanitize_ump_history('Bill Miller','bill_miller')
   
-  # for i in range(len(df)):
-  #   evaluate_proximity(df.at[i,'Abbr'])
-  sanitize_ump_history(df.at[0,'Umpire'], df.at[0,'Abbr'])
+  for i in range(len(df)):
+    # evaluate_proximity(df.at[i,'Abbr'])
+    sanitize_ump_history(df.at[i,'Umpire'], df.at[i,'Abbr'])
