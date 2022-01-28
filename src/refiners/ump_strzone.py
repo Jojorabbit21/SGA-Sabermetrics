@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import os.path
+import math
 from tqdm import tqdm
 
 '''
@@ -49,6 +50,7 @@ def push_ump_history(full, abbr):
   else:
     print("there is no umpire {}.".format(full))
 
+
 # statcast 파일의 비어있는 umpire column 채우기
 def push_ump_names(season):
   
@@ -85,102 +87,26 @@ def push_ump_names(season):
 
 
 # 시각화
-def sanitize_ump_history(full, abbr):
+def vizualize_umpire(full, abbr):
   if os.path.isfile("./bakery/umpire_strikezones/refined/umpires/{}.csv".format(abbr)):
-    print("Sanitizing {}'s pitch-by-pitch record".format(full))
+    print("Visualizing {}'s pitch-by-pitch record".format(full))
     history = pd.read_csv("./bakery/umpire_strikezones/refined/umpires/{}.csv".format(abbr))
 
     # Data Visualization 
     # Total Zone = (-2 <= x <= 2) & (1 <= z <= 4.5)
     # Strike =  (-1 <= plate_x <= 1) && (1.5 <= plate_z <= 3.5) 
     # Borderline = ((-1.2 <= plate_x <= -0.8) || (0.8 <= plate_x <= 1.2)) && ((1.3 <= plate_z <= 1.7) || (3.3 <= plate_z <= 3.7))
-    
-    # 1. Called Strike but Out of SZ
-    #    1-1. vLHP
-    #    1-2. vRHP
-    # 2. Called Strike Inside SZ
-    #    2-1. vLHP
-    #    2-2. vRHP
-    # 3. Called Ball but Inside SZ
-    #    3-1. vLHP
-    #    3-2. vRHP
-    
-    # # called strike but out of strikezone
-    # ooz = history.query('(plate_x < -1 or plate_x > 1) or (plate_z < 1.5 or plate_z > 3.5) and (type == "S" or type == "X") and description == "called_strike"')
-    # ooz_lhp = ooz.query('p_throws == "L"')
-    # ooz_lhp_x = ooz_lhp['plate_x']
-    # ooz_lhp_y = ooz_lhp['plate_z']
-    # ooz_rhp = ooz.query('p_throws == "R"')
-    # ooz_rhp_x = ooz_rhp['plate_x']
-    # ooz_rhp_y = ooz_rhp['plate_z']
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=ooz_lhp_x, y=ooz_lhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Strike/OutofSZ'.format(full))
-    # ax.set_xlabel('vLHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_ooz_lhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee')
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=ooz_rhp_x, y=ooz_rhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Strike/OutofSZ'.format(full))
-    # ax.set_xlabel('vRHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_ooz_rhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee')
-    # # called strike inside strikezone (vLHP,rRHP)
-    # iz = history.query('(plate_x > -1 and plate_x < 1) and (plate_z > 1.5 and plate_z < 3.5) and (type == "S" or type == "X") and description == "called_strike"')
-    # iz_lhp = iz.query('p_throws == "L"')
-    # iz_lhp_x = iz_lhp['plate_x']
-    # iz_lhp_y = iz_lhp['plate_z']
-    # iz_rhp = iz.query('p_throws == "R"')
-    # iz_rhp_x = iz_rhp['plate_x']
-    # iz_rhp_y = iz_rhp['plate_z']
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=iz_lhp_x, y=iz_lhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Strike/InsideSZ'.format(full))
-    # ax.set_xlabel('vLHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_iz_lhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee') 
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=iz_rhp_x, y=iz_rhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Strike/InsideSZ'.format(full))
-    # ax.set_xlabel('vRHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_iz_rhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee')  
-
-    # called ball but inside strikezone (vLHP,vRHP)
-    biz = history.query('type == "S"')
-    # biz_lhp = biz.query('p_throws == "L"')
-    # biz_rhp = biz.query('p_throws == "R"')
-    
-    fig , sax = plt.subplots(1,1, figsize=(8,9))
-    sax = sns.scatterplot(x=history['plate_x'], y=biz['plate_z'], s=10 ,style=biz['call'] , hue=biz['call'], markers=['X','o'], palette=['dodgerblue','red'])
+    history = history.query('call == "r" or call == "w"')
+    palette = {
+      'S': 'orange',
+      'B': 'limegreen'
+    }
+    markers = {
+      'r': 'o',
+      'w': 'X'
+    }
+    fig , sax = plt.subplots(1,1, figsize=(20,20))
+    sax = sns.scatterplot(x=history['plate_x'], y=history['plate_z'], s=20 ,style=history['call'] , hue=history['type'], palette=palette, markers=markers)
     sax.set_xlim(-2,2)
     sax.set_ylim(1,4)
     sax.set_title('{} - InsideSZ Scatter plot'.format(full))
@@ -188,32 +114,10 @@ def sanitize_ump_history(full, abbr):
     sax.set_ylabel('')
     sax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False, alpha=0.4))
     plt.grid(True, color='gray', alpha=0.3, linestyle='--')
-    dest_path = './bakery/umpire_strikezones/refined/umpires/images/strikes_and_balls/{}.png'.format(abbr)
+    dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}.png'.format(abbr)
     if not os.path.isfile(dest_path):
-      plt.savefig(dest_path, facecolor='#eeeeee')     
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=biz_lhp_x, y=biz_lhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Ball/InsideSZ'.format(full))
-    # ax.set_xlabel('vLHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
-    # dest_path = './bakery/umpire_strikezones/refined/umpires/images/{}_biz_lhp.png'.format(abbr)
-    # if not os.path.isfile(dest_path):
-    #   plt.savefig(dest_path, facecolor='#eeeeee') 
-    
-    # fig, ax = plt.subplots(1,1, figsize=(10,8))
-    # ax = sns.kdeplot(x=biz_rhp_x, y=biz_rhp_y, cmap="OrRd", shade=True)
-    # ax.set_xlim(-2, 2)
-    # ax.set_ylim(1, 4)
-    # ax.set_title('{} - Ball/InsideSZ'.format(full))
-    # ax.set_xlabel('vRHP')
-    # ax.set_ylabel('')
-    # ax.add_patch(patches.Rectangle((-1,1.5),2,2, edgecolor='black', fill=False))
-    # plt.grid(True, color='gray', alpha=0.4, linestyle='--')
+      plt.savefig(dest_path, facecolor='#eeeeee', dpi=300)
+    plt.close()
 
 
 # borderline call 정확도 구하기
@@ -225,119 +129,75 @@ def evaluate_proximity(abbr):
     df = pd.read_csv(exist_filepath)
     df_length = len(df)
     print("Evaluate {}'s Call Proximity".format(abbr))
-    
-    '''
-    if not 'prox_x' in df.columns:
-      prox = pd.DataFrame(index=range(df_length), columns=['prox_x','prox_z','prox_pos_x','prox_pos_z','call'])
-      for i in range(df_length):
-        plate_x = df.at[i, 'plate_x']
-        plate_z = df.at[i, 'plate_z']
-        type = df.at[i, 'type']
         
-        if type != 'X':
-          if type == 'B': # If Called Ball
-            if plate_x < -1: # left of border_x
-              prox.loc[i, 'prox_pos_x'] = 'out'
-              call_x = 'r'
-            elif plate_x > 1: # right of border_x
-              prox.loc[i, 'prox_pos_x'] = 'out'
-              call_x = 'r'
-            else:
-              prox.loc[i, 'prox_pos_x'] = 'in'
-              call_x = 'w'
-              
-            if plate_z < 1.5: #below border_z
-              prox.loc[i, 'prox_pos_z'] = 'out'
-              call_z = 'r'
-            elif plate_z > 3.5: #above border_z
-              prox.loc[i, 'prox_pos_z'] = 'out'
-              call_z = 'r'
-            else:
-              prox.loc[i, 'prox_pos_z'] = 'in'
-              call_z = 'w'
-          elif type == 'S': # If Called Strike
-            if plate_x < -1: # left of border_x
-              prox.loc[i, 'prox_pos_x'] = 'out'
-              call_x = 'w'
-            elif plate_x > 1: # right of border_x
-              prox.loc[i, 'prox_pos_x'] = 'out'
-              call_x = 'w'
-            else:
-              prox.loc[i, 'prox_pos_x'] = 'in'
-              call_x = 'r'
-              
-            if plate_z < 1.5: #below border_z
-              prox.loc[i, 'prox_pos_z'] = 'out'
-              call_z = 'w'
-            elif plate_z > 3.5: #above border_z
-              prox.loc[i, 'prox_pos_z'] = 'out'
-              call_z = 'w'
-            else:
-              prox.loc[i, 'prox_pos_z'] = 'in'
-              call_z = 'r'
-          if call_x == 'r' and call_z == 'r':
-            prox.loc[i, 'call'] = 'r'
+    y = 0
+    n = 0
+    allowed = ['called_strike','ball','blocked_ball']
+    
+    for i in tqdm(range(df_length)):
+      if math.isnan(df.loc[i,'plate_x']) and math.isnan(df.loc[i,'plate_z']):
+        n += 1
+        continue
+      else:
+        des = df.at[i, 'description']
+        plate_x = df.loc[i,'plate_x']
+        plate_z = df.loc[i,'plate_z']
+        type = df.loc[i,'type']
+        if des in allowed:
+          if type == 'S':
+            if des == 'called_strike': # If called Strike
+              if (-1 <= plate_x <= 1):
+                if (1.5 <= plate_z <= 3.5):
+                  call = 'r'
+                else:
+                  call = 'w'
+              else:
+                call = 'w'
+              df.loc[i,'call'] = call
+              y += 1
+          elif type == 'B':
+            if des == 'ball' or des == 'blocked_ball': # If Called Ball (Intent Ball is not included)
+              if (plate_x < -1 or plate_x > 1) or (plate_z < 1.5 or plate_z > 3.5):
+                call = 'r'
+              elif (-1 <= plate_x <= 1) and (1.5 <= plate_z <= 3.5):
+                call = 'w'
+              df.loc[i,'call'] = call
+              y += 1
           else:
-            prox.loc[i, 'call'] = 'w'
-              
-        if plate_x > 0:
-          prox.loc[i, 'prox_x'] = abs(plate_x-1)
-        elif plate_x < 0:
-          prox.loc[i, 'prox_x'] = abs(abs(plate_x)-1)
-          
-        if plate_z > 2.5:
-          prox.loc[i, 'prox_z'] = abs(plate_z-3.5)
-        elif plate_z < 2.5:
-          prox.loc[i, 'prox_z'] = abs(plate_z-1.5)
-      df = pd.concat([df, prox], axis=1)
-    else:
-    '''
+            continue
+        else:
+          continue
+    print(f"{abbr} Evaluated: Filled: {y} / Void: {n}")
+    df.to_csv(exist_filepath,mode="w",encoding='utf-8-sig',index=False)
     
-    for i in range(df_length):
-      tp = df.at[i, 'type']
-      des = df.at[i, 'description']
-      plate_x = df.at[i, 'plate_x']
-      plate_z = df.at[i, 'plate_z']
-      if des == 'called_strike': # If called Strike
-        if plate_x > -1 or plate_x < 1:
-          call_x = 'r'
-        else:
-          call_x = 'w'
-        if plate_z > 1.5 or plate_z < 3.5:
-          call_z = 'r'
-        else:
-          call_z = 'w'
-        if call_x == 'r' and call_z == 'r':
-          df.loc[i, 'call'] = 'r'
-        else:
-          df.loc[i, 'call'] = 'w'
-      elif tp == 'B': # If Called Ball
-        if plate_x < -1 or plate_x > 1:
-          call_x = 'r'
-        else:
-          call_x = 'w'
-        if plate_z < 1.5 or plate_z > 3.5:
-            call_z = 'r'
-        else:
-          call_z = 'w'
-        
-        if call_z == 'r' or call_x == 'r':
-          df.loc[i, 'call'] = 'r'
-        else:
-          df.loc[i, 'call'] = 'w'
-
-    df.to_csv(exist_filepath,mode="w",encoding='utf-8-sig')
-    
+def get_ump_ranks(abbr):
+  exist_filepath = './bakery/umpire_strikezones/refined/umpires/{}.csv'.format(abbr)
+  if os.path.isfile(exist_filepath):  
+    df = pd.read_csv(exist_filepath)
+    print("Evaluate {}'s Rank".format(abbr))
+    total = df.loc[(df['type'] == 'B')|(df['type'] == 'S'),['pitch_type','type','call']]
+    pitchtype_acc = total.groupby(['pitch_type','call']).count()
+    ball_total = df.loc[(df['type'] == 'B')&(df['call'] == 'r')|(df['call'] == 'w'),['type','call']]
+    ball_acc = ball_total.groupby(['call']).count()
+    strike_total = df.loc[(df['type'] == 'S')&(df['call'] == 'r')|(df['call'] == 'w'),['type','call']]
+    strike_acc = strike_total.groupby(['call']).count()
+    # print(f"Total: {len(strike_total)+len(ball_total)}")
+    # print(ball_acc)
+    # print(strike_acc)
+    print(pitchtype_acc)
 
 if __name__ == '__main__':
-  df = get_ump_list()
+
+  # --- Testing ---
+  # evaluate_proximity('angel_hernandez')
+  get_ump_ranks('adam_beck')
+  # vizualize_umpire('Angel Hernandez','angel_hernandez')
+  
+  # df = get_ump_list()
   # create_ump_history(df['Abbr'])
   # for i in range(len(df)):
-  #   # push_ump_history(str(df.at[i,'Umpire']),str(df.at[i,'Abbr']))
-  #   sanitize_ump_history(str(df.at[i,'Umpire']),str(df.at[i,'Abbr']))
-  
-  # sanitize_ump_history('Bill Miller','bill_miller')
-  
-  for i in range(len(df)):
-    # evaluate_proximity(df.at[i,'Abbr'])
-    sanitize_ump_history(df.at[i,'Umpire'], df.at[i,'Abbr'])
+    # abbr = df.at[i,'Abbr']
+    # push_ump_history(str(df.at[i,'Umpire']),str(df.at[i,'Abbr']))
+    # evaluate_proximity(abbr)
+    # get_ump_ranks(abbr)
+    # vizualize_umpire(df.at[i,'Umpire'], abbr)

@@ -1,3 +1,7 @@
 #REF
 Github Actions + Selenium + Chromedriver https://velog.io/@king/weather-alert
 UZR https://ibaseballgen.tistory.com/181
+
+
+#0125 발견된 문제점
+- Strike 판정 r/w 여부가 제대로 소팅되지 않았음 (다시해야함)

@@ -132,8 +132,8 @@ def main():
     # split = pd.concat([split,df],axis=0)
     # print(split)
     
-    get_statcast_logs('./rawfish/statcast/',2021,2022)
-    print('PROCESS DONE [v]')
+    get_statcast_logs('./rawfish/statcast/',2015,2021)
+    print('PROCESS DONE')
     
     
 if __name__ == "__main__":
